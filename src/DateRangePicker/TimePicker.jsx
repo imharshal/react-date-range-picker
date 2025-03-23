@@ -1,5 +1,6 @@
-// TimePicker.js
+/*eslint-disable*/
 import React, { memo } from 'react';
+import moment from 'moment';
 
 const TimePicker = ({
   selected,
@@ -52,22 +53,30 @@ const TimePicker = ({
 
   const renderHourOptions = () => {
     const hours = [];
-    let hourCount = timePicker24Hour ? 24 : 12;
-    let startHour = timePicker24Hour ? 0 : 1;
+    const start = timePicker24Hour ? 0 : 1;
+    const end = timePicker24Hour ? 23 : 12;
 
-    for (let i = startHour; i < hourCount + startHour; i++) {
-      const hour = timePicker24Hour ? i : i % 12 || 12;
-      const padded = hour < 10 ? `0${hour}` : `${hour}`;
-      const time = selected
-        .clone()
-        .hour(i < 12 || timePicker24Hour ? i : i + 12);
+    for (let i = start; i <= end; i++) {
+      const value = i;
+      let hour = i;
+
+      // For 12-hour format, map the hours correctly
+      if (!timePicker24Hour) {
+        if (selected.hour() >= 12) {
+          hour = i === 12 ? 12 : i;
+        } else {
+          hour = i === 12 ? 0 : i;
+        }
+      }
+
+      const time = selected.clone().hour(hour);
       const disabled =
         (minDate && time.minute(59).isBefore(minDate)) ||
         (maxDate && time.minute(0).isAfter(maxDate));
 
       hours.push(
-        <option key={i} value={i} disabled={disabled}>
-          {padded}
+        <option key={i} value={value} disabled={disabled}>
+          {value}
         </option>
       );
     }
