@@ -495,8 +495,8 @@ const DateRangePicker = (props) => {
                 activeRangeLabel={chosenLabel}
               />
             )}
-            <div className="drp-right-container">
-              {showCalendars && (
+            {showCalendars && (
+              <div className="drp-right-container">
                 <>
                   <div className="drp-selected-container">
                     <span className="drp-selected">
@@ -611,8 +611,8 @@ const DateRangePicker = (props) => {
                     )}
                   </div>
                 </>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {showCalendars && !options.autoApply && (
