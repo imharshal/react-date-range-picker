@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import moment from 'moment';
-import DateRangePicker from './DateRangePicker';
+import DateRangePicker from '.';
 
 function App() {
   const ranges = {
