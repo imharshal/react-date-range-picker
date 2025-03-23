@@ -127,3 +127,125 @@
     color: inherit;
   }
 }
+
+.drp-calendar-container {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+}
+
+.calendar {
+  min-width: 270px;
+
+  .month-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+
+    .month-navigation {
+      cursor: pointer;
+      padding: 0 8px;
+      font-size: 18px;
+      user-select: none;
+
+      &:hover {
+        color: #337ab7;
+      }
+    }
+
+    .month-name {
+      font-weight: 500;
+    }
+
+    .month-dropdowns {
+      display: flex;
+      gap: 8px;
+
+      select {
+        padding: 2px 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+      }
+    }
+  }
+
+  .calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th.week-day {
+      padding: 5px;
+      font-size: 12px;
+      text-align: center;
+      color: #999;
+    }
+
+    td.day {
+      padding: 5px;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 4px;
+
+      &:hover {
+        background-color: #eee;
+      }
+
+      &.off {
+        color: #ccc;
+      }
+
+      &.disabled {
+        cursor: not-allowed;
+        color: #ccc;
+        text-decoration: line-through;
+      }
+
+      &.today {
+        font-weight: bold;
+        color: #3498db;
+      }
+
+      &.start-date,
+      &.end-date {
+        background-color: #337ab7;
+        color: #fff;
+      }
+
+      &.in-range {
+        background-color: #ebf4f8;
+        color: #000;
+      }
+
+      &.preview {
+        background-color: rgba(235, 244, 248, 0.75);
+      }
+    }
+  }
+}
+
+.drp-selected-container {
+  padding: 5px 10px;
+  font-weight: 500;
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 5px;
+}
+
+/* Updated daterangepicker for calendar display */
+.daterangepicker {
+  &.show-calendar {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .drp-content {
+    display: flex;
+  }
+
+  &.single .drp-calendar-container {
+    width: 100%;
+  }
+}
