@@ -4,8 +4,8 @@ import moment from 'moment-timezone';
 import Calendar from './Calendar';
 import TimePicker from './TimePicker';
 import RangeSelector from './RangeSelector';
-import DateRangePickerUtils from './DateRangePickerUtils';
-import './styles.scss';
+import DateRangePickerUtils from '../utils/DateRangePickerUtils';
+import '../styles/styles.scss';
 
 const DateRangePicker = (props) => {
   // Get timeZone from props or use local timezone as default
