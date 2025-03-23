@@ -1,6 +1,7 @@
 // DateRangePicker.js
 import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
 import moment from 'moment-timezone';
+import Calendar from './Calendar';
 import DateRangePickerUtils from './DateRangePickerUtils';
 import './styles.scss';
 
@@ -309,7 +310,6 @@ const DateRangePicker = (props) => {
     };
   }, [isOpen]);
 
-  // Update the return/render section to include the toggle functionality:
   return (
     <div className="daterangepicker-container">
       {options.showInputField ? (
@@ -348,30 +348,106 @@ const DateRangePicker = (props) => {
         <div
           ref={containerRef}
           className={`daterangepicker 
-            ${options.opens || 'right'} 
-            ${dropUp ? 'drop-up' : 'drop-down'} 
-            ${options.singleDatePicker ? 'single' : ''} 
-            ${options.timePicker ? 'has-time-picker' : ''}`}
+          ${options.opens || 'right'} 
+          ${dropUp ? 'drop-up' : 'drop-down'} 
+          ${options.singleDatePicker ? 'single' : ''} 
+          ${options.timePicker ? 'has-time-picker' : ''}
+          ${isSelecting ? 'selecting' : ''}
+          show-calendar`}
         >
-          <div className="drp-buttons">
-            <div className="drp-button-group">
-              <button
-                className={`drp-btn drp-btn-default ${options.cancelButtonClasses}`}
-                onClick={cancelChanges}
-                type="button"
-              >
-                {options.locale?.cancelLabel || 'Cancel'}
-              </button>
-              <button
-                className={`drp-btn drp-btn-primary ${options.applyButtonClasses}`}
-                onClick={() => applyChanges(startDate, endDate, chosenLabel)}
-                disabled={!endDate || startDate.isAfter(endDate)}
-                type="button"
-              >
-                {options.locale?.applyLabel || 'Apply'}
-              </button>
+          <div className="drp-content">
+            <div className="drp-right-container">
+              <div className="drp-selected-container">
+                <span className="drp-selected">
+                  {options.singleDatePicker
+                    ? formatDateDisplay(startDate)
+                    : `${formatDateDisplay(startDate)} ${
+                        options.locale.separator
+                      } ${formatDateDisplay(endDate)}`}
+                </span>
+              </div>
+
+              <div className="drp-calendar-container">
+                <div className="drp-calendar left">
+                  <Calendar
+                    month={leftCalendarMonth}
+                    minDate={
+                      options.minDate ? getMoment(options.minDate) : undefined
+                    }
+                    maxDate={
+                      options.maxDate ? getMoment(options.maxDate) : undefined
+                    }
+                    startDate={startDate}
+                    endDate={endDate}
+                    hoverDate={hoverDate}
+                    isSelecting={isSelecting}
+                    onDateClick={handleDateClick}
+                    onDateHover={handleDateHover}
+                    onMonthChange={(month) =>
+                      setLeftCalendarMonth(getMoment(month))
+                    }
+                    isLeft={true}
+                    showDropdowns={options.showDropdowns}
+                    utils={utils}
+                    locale={options.locale}
+                    moment={getMoment}
+                    dateFormat={baseDateFormat}
+                  />
+                </div>
+
+                {!options.singleDatePicker && (
+                  <div className="drp-calendar right">
+                    <Calendar
+                      month={rightCalendarMonth}
+                      minDate={
+                        options.minDate ? getMoment(options.minDate) : undefined
+                      }
+                      maxDate={
+                        options.maxDate ? getMoment(options.maxDate) : undefined
+                      }
+                      startDate={startDate}
+                      endDate={endDate}
+                      hoverDate={hoverDate}
+                      isSelecting={isSelecting}
+                      onDateClick={handleDateClick}
+                      onDateHover={handleDateHover}
+                      onMonthChange={(month) =>
+                        setRightCalendarMonth(getMoment(month))
+                      }
+                      isLeft={false}
+                      showDropdowns={options.showDropdowns}
+                      utils={utils}
+                      locale={options.locale}
+                      moment={getMoment}
+                      dateFormat={baseDateFormat}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
+
+          {!options.autoApply && (
+            <div className="drp-buttons">
+              <div className="drp-button-group">
+                <button
+                  className={`drp-btn drp-btn-default ${options.cancelButtonClasses}`}
+                  onClick={cancelChanges}
+                  type="button"
+                >
+                  {options.locale?.cancelLabel || 'Cancel'}
+                </button>
+                <button
+                  className={`drp-btn drp-btn-primary ${options.applyButtonClasses}`}
+                  onClick={() => applyChanges(startDate, endDate, chosenLabel)}
+                  disabled={!endDate || startDate.isAfter(endDate)}
+                  type="button"
+                >
+                  {options.locale?.applyLabel || 'Apply'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
