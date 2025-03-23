@@ -294,3 +294,44 @@
     padding-bottom: 10px;
   }
 }
+
+/* RangeSelector styles */
+.daterangepicker {
+  &.show-ranges {
+    min-width: 580px;
+
+    .drp-content {
+      display: flex;
+    }
+
+    .ranges {
+      min-width: 140px;
+      border-right: 1px solid #ddd;
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+          padding: 8px 12px;
+          cursor: pointer;
+          user-select: none;
+
+          &:hover {
+            background-color: #eee;
+          }
+
+          &.active {
+            background-color: #337ab7;
+            color: #fff;
+          }
+        }
+      }
+    }
+
+    .drp-right-container {
+      flex: 1;
+    }
+  }
+}
