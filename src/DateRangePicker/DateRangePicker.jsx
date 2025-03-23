@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
 import moment from 'moment-timezone';
 import Calendar from './Calendar';
+import TimePicker from './TimePicker';
 import DateRangePickerUtils from './DateRangePickerUtils';
 import './styles.scss';
 
@@ -393,6 +394,23 @@ const DateRangePicker = (props) => {
                     moment={getMoment}
                     dateFormat={baseDateFormat}
                   />
+
+                  {options.timePicker && (
+                    <TimePicker
+                      selected={startDate}
+                      onChange={handleSetStartDate}
+                      timePicker24Hour={options.timePicker24Hour}
+                      timePickerIncrement={options.timePickerIncrement}
+                      timePickerSeconds={options.timePickerSeconds}
+                      minDate={
+                        options.minDate ? getMoment(options.minDate) : undefined
+                      }
+                      maxDate={
+                        options.maxDate ? getMoment(options.maxDate) : undefined
+                      }
+                      moment={getMoment}
+                    />
+                  )}
                 </div>
 
                 {!options.singleDatePicker && (
@@ -421,6 +439,23 @@ const DateRangePicker = (props) => {
                       moment={getMoment}
                       dateFormat={baseDateFormat}
                     />
+
+                    {options.timePicker && (
+                      <TimePicker
+                        selected={endDate}
+                        onChange={handleSetEndDate}
+                        timePicker24Hour={options.timePicker24Hour}
+                        timePickerIncrement={options.timePickerIncrement}
+                        timePickerSeconds={options.timePickerSeconds}
+                        minDate={startDate}
+                        maxDate={
+                          options.maxDate
+                            ? getMoment(options.maxDate)
+                            : undefined
+                        }
+                        moment={getMoment}
+                      />
+                    )}
                   </div>
                 )}
               </div>
