@@ -1,5 +1,5 @@
-// RangeSelector.js (complete file)
 import React, { memo } from 'react';
+import moment from 'moment';
 
 const RangeSelector = ({
   ranges,
@@ -9,10 +9,24 @@ const RangeSelector = ({
   },
   activeRangeLabel = null,
 }) => {
+  const defaultRanges = {
+    Today: [moment(), moment()],
+    Yesterday: [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+    'This Month': [moment().startOf('month'), moment().endOf('month')],
+    'Last Month': [
+      moment().subtract(1, 'month').startOf('month'),
+      moment().subtract(1, 'month').endOf('month'),
+    ],
+  };
+
+  const allRanges = ranges || defaultRanges;
+
   return (
     <div className="ranges">
       <ul>
-        {Object.entries(ranges).map(([label, [start, end]]) => (
+        {Object.entries(allRanges).map(([label, [start, end]]) => (
           <li
             key={label}
             data-range-key={label}
