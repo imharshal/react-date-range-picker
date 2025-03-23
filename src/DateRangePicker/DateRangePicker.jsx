@@ -1,8 +1,9 @@
-// DateRangePicker.js
+// DateRangePicker.js (complete file with RangeSelector integration)
 import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
 import moment from 'moment-timezone';
 import Calendar from './Calendar';
 import TimePicker from './TimePicker';
+import RangeSelector from './RangeSelector';
 import DateRangePickerUtils from './DateRangePickerUtils';
 import './styles.scss';
 
@@ -75,6 +76,30 @@ const DateRangePicker = (props) => {
     );
   };
 
+  // Default ranges
+  const defaultRanges = {
+    Today: [getMoment(), getMoment()],
+    Yesterday: [
+      getMoment().subtract(1, 'days'),
+      getMoment().subtract(1, 'days'),
+    ],
+    'Last 7 Days': [getMoment().subtract(6, 'days'), getMoment()],
+    'Last 30 Days': [getMoment().subtract(29, 'days'), getMoment()],
+    'This Month': [getMoment().startOf('month'), getMoment().endOf('month')],
+    'Last Month': [
+      getMoment().subtract(1, 'month').startOf('month'),
+      getMoment().subtract(1, 'month').endOf('month'),
+    ],
+  };
+
+  // Show ranges configuration
+  const showRanges =
+    options.showRanges !== undefined
+      ? options.showRanges
+      : !options.singleDatePicker && (props.ranges !== undefined || true);
+
+  const ranges = showRanges ? props.ranges || defaultRanges : {};
+
   // State management
   const [isOpen, setIsOpen] = useState(false);
   const [dropUp, setDropUp] = useState(false);
@@ -100,6 +125,14 @@ const DateRangePicker = (props) => {
   const [rightCalendarMonth, setRightCalendarMonth] = useState(
     getMoment(startDate).add(1, 'month')
   );
+
+  // Drag selection state
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [hoverDate, setHoverDate] = useState(null);
+
+  // Refs for DOM elements
+  const containerRef = useRef(null);
+  const inputRef = useRef(null);
 
   // Format date for display
   const formatDateDisplay = (date) => {
@@ -132,26 +165,6 @@ const DateRangePicker = (props) => {
         : `${formattedStartDate} ${options.locale.separator} ${formattedEndDate}`;
     }
   };
-
-  // Effect for initial setup
-  useEffect(() => {
-    updateCalendars();
-    if (options.autoUpdateInput) {
-      updateInputText();
-    }
-  }, []);
-
-  // Effect for updating input when dates change
-  useEffect(() => {
-    if (options.autoUpdateInput) {
-      updateInputText();
-    }
-    updateCalendars();
-  }, [startDate, endDate]);
-
-  // Refs for DOM elements
-  const containerRef = useRef(null);
-  const inputRef = useRef(null);
 
   // Handle outside click
   const handleOutsideClick = (e) => {
@@ -302,14 +315,89 @@ const DateRangePicker = (props) => {
     }
   };
 
-  // Add event listener for outside clicks
+  // Handle range click
+  const handleRangeClick = (start, end, label) => {
+    const customRangeLabel = options.locale?.customRangeLabel || 'Custom Range';
+
+    if (label === customRangeLabel) {
+      // If Custom Range is clicked, show the calendars but don't apply yet
+      setChosenLabel(label);
+      setShowCalendars(true);
+    } else {
+      // For predefined ranges, set the dates and auto-apply
+      if (start && end) {
+        setStartDate(getMoment(start));
+        setEndDate(getMoment(end));
+        setChosenLabel(label);
+
+        if (options.autoApply) {
+          applyChanges(getMoment(start), getMoment(end), label);
+        }
+      }
+    }
+  };
+
+  // Effect for initial setup
   useEffect(() => {
     document.addEventListener('mousedown', handleOutsideClick);
+    updateCalendars();
+
+    if (options.autoUpdateInput) {
+      updateInputText();
+    }
 
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, [isOpen]);
+  }, []);
+
+  // Effect for updating input when dates change
+  useEffect(() => {
+    if (options.autoUpdateInput) {
+      updateInputText();
+    }
+    updateCalendars();
+  }, [startDate, endDate]);
+
+  // Effect to determine active range based on current date selection
+  useEffect(() => {
+    if (showRanges && !options.singleDatePicker && ranges) {
+      // Look for an exact match with predefined ranges
+      let matched = false;
+
+      Object.entries(ranges).forEach(([label, [rangeStart, rangeEnd]]) => {
+        if (
+          startDate.format('YYYY-MM-DD') === rangeStart.format('YYYY-MM-DD') &&
+          endDate.format('YYYY-MM-DD') === rangeEnd.format('YYYY-MM-DD')
+        ) {
+          setChosenLabel(label);
+          matched = true;
+        }
+      });
+
+      // If no match was found, set to custom range
+      if (!matched && isOpen) {
+        setChosenLabel(options.locale?.customRangeLabel || 'Custom Range');
+        if (!options.alwaysShowCalendars) {
+          setShowCalendars(true);
+        }
+      }
+    }
+  }, [startDate, endDate, isOpen]);
+
+  // Effect for showing/hiding calendars
+  useEffect(() => {
+    if (isOpen) {
+      if (options.alwaysShowCalendars || options.singleDatePicker) {
+        setShowCalendars(true);
+      } else {
+        // Show calendars if Custom Range is selected, otherwise hide them
+        const customRangeLabel =
+          options.locale?.customRangeLabel || 'Custom Range';
+        setShowCalendars(chosenLabel === customRangeLabel);
+      }
+    }
+  }, [isOpen, chosenLabel, options.alwaysShowCalendars]);
 
   return (
     <div className="daterangepicker-container">
@@ -349,14 +437,23 @@ const DateRangePicker = (props) => {
         <div
           ref={containerRef}
           className={`daterangepicker 
-          ${options.opens || 'right'} 
-          ${dropUp ? 'drop-up' : 'drop-down'} 
-          ${options.singleDatePicker ? 'single' : ''} 
-          ${options.timePicker ? 'has-time-picker' : ''}
-          ${isSelecting ? 'selecting' : ''}
-          show-calendar`}
+            ${options.opens || 'right'} 
+            ${dropUp ? 'drop-up' : 'drop-down'} 
+            ${showRanges && !options.singleDatePicker ? 'show-ranges' : ''} 
+            ${options.singleDatePicker ? 'single' : ''} 
+            ${options.timePicker ? 'has-time-picker' : ''}
+            ${isSelecting ? 'selecting' : ''}
+            show-calendar`}
         >
           <div className="drp-content">
+            {showRanges && !options.singleDatePicker && (
+              <RangeSelector
+                ranges={ranges}
+                locale={options.locale}
+                onRangeClick={handleRangeClick}
+                activeRangeLabel={chosenLabel}
+              />
+            )}
             <div className="drp-right-container">
               <div className="drp-selected-container">
                 <span className="drp-selected">
@@ -489,4 +586,4 @@ const DateRangePicker = (props) => {
   );
 };
 
-export default DateRangePicker;
+export default memo(DateRangePicker);
