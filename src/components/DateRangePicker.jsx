@@ -1,5 +1,11 @@
-/*eslint-disable*/
-import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  memo,
+  useCallback,
+} from 'react';
 import moment from 'moment-timezone';
 import Calendar from './Calendar';
 import TimePicker from './TimePicker';
@@ -8,121 +14,145 @@ import DateRangePickerUtils from '../utils/DateRangePickerUtils';
 import '../styles/styles.scss';
 
 const DateRangePicker = (props) => {
-  // Get timeZone from props or use local timezone as default
-  const timeZone = props.timeZone || moment.tz.guess();
+  // Memoize timeZone to prevent recalculation
+  const timeZone = useMemo(
+    () => props.timeZone || moment.tz.guess(),
+    [props.timeZone]
+  );
 
-  // Create utility instance
-  const utils = new DateRangePickerUtils();
+  // Create utility instance once
+  const utils = useMemo(() => new DateRangePickerUtils(), []);
 
-  // Create a timezone-aware moment function to ensure consistent usage
-  const getMoment = (date) => {
-    if (date && moment.isMoment(date)) {
-      return date.clone().tz(timeZone);
-    }
-    return date ? moment(date).tz(timeZone) : moment().tz(timeZone);
-  };
+  // Create an optimized timezone-aware moment function
+  const getMoment = useCallback(
+    (date) => {
+      if (date && moment.isMoment(date)) {
+        return date.clone().tz(timeZone);
+      }
+      return date ? moment(date).tz(timeZone) : moment().tz(timeZone);
+    },
+    [timeZone]
+  );
 
-  // Get format settings
+  // Memoize format settings
   const userProvidedFormat = props.options?.locale?.format;
   const baseDateFormat = useMemo(() => {
     const systemOrProvidedFormat =
       userProvidedFormat || utils.getSystemDateFormat();
     return utils.extractDateFormat(systemOrProvidedFormat);
-  }, [userProvidedFormat]);
+  }, [userProvidedFormat, utils]);
 
   const timeFormat = useMemo(() => {
     return utils.extractTimeFormat(
       userProvidedFormat,
       props.options?.timePicker24Hour
     );
-  }, [userProvidedFormat, props.options?.timePicker24Hour]);
+  }, [userProvidedFormat, props.options?.timePicker24Hour, utils]);
 
-  // Default options
-  const options = {
-    singleDatePicker: false,
-    icon: '',
-    showInputField: true,
-    showFullDateRangeLabel: false,
-    showDropdowns: true,
-    timePicker: false,
-    timePicker24Hour: false,
-    timePickerIncrement: 5,
-    timePickerSeconds: false,
-    linkedCalendars: true,
-    autoApply: false,
-    autoUpdateInput: true,
-    showCustomRangeLabel: true,
-    alwaysShowCalendars: false,
-    opens: 'right',
-    drops: 'auto',
-    buttonClasses: 'drp-btn',
-    applyButtonClasses: 'drp-btn-primary',
-    cancelButtonClasses: 'drp-btn-default',
-    ...props.options,
-    locale: {
-      format: baseDateFormat,
-      separator: ' - ',
-      ...(props.options?.locale || {}),
-    },
-  };
+  // Memoize options to prevent unnecessary recreation
+  const options = useMemo(
+    () => ({
+      singleDatePicker: false,
+      icon: '',
+      showInputField: true,
+      showFullDateRangeLabel: false,
+      showDropdowns: true,
+      timePicker: false,
+      timePicker24Hour: false,
+      timePickerIncrement: 5,
+      timePickerSeconds: false,
+      linkedCalendars: true,
+      autoApply: false,
+      autoUpdateInput: true,
+      showCustomRangeLabel: true,
+      alwaysShowCalendars: false,
+      opens: 'right',
+      drops: 'auto',
+      buttonClasses: 'drp-btn',
+      applyButtonClasses: 'drp-btn-primary',
+      cancelButtonClasses: 'drp-btn-default',
+      ...props.options,
+      locale: {
+        format: baseDateFormat,
+        separator: ' - ',
+        ...(props.options?.locale || {}),
+      },
+    }),
+    [props.options, baseDateFormat]
+  );
 
-  // Get the display format for dates
-  const getDisplayFormat = () => {
+  // Memoize display format to avoid recalculations
+  const getDisplayFormat = useCallback(() => {
     return utils.getDisplayFormat(
       baseDateFormat,
       timeFormat,
       options.timePicker,
       userProvidedFormat
     );
-  };
+  }, [
+    baseDateFormat,
+    timeFormat,
+    options.timePicker,
+    userProvidedFormat,
+    utils,
+  ]);
 
-  // Default ranges
-  const defaultRanges = {
-    Today: [getMoment(), getMoment()],
-    Yesterday: [
-      getMoment().subtract(1, 'days'),
-      getMoment().subtract(1, 'days'),
-    ],
-    'Last 7 Days': [getMoment().subtract(6, 'days'), getMoment()],
-    'Last 30 Days': [getMoment().subtract(29, 'days'), getMoment()],
-    'This Month': [getMoment().startOf('month'), getMoment().endOf('month')],
-    'Last Month': [
-      getMoment().subtract(1, 'month').startOf('month'),
-      getMoment().subtract(1, 'month').endOf('month'),
-    ],
-  };
+  // Memoize default ranges
+  const defaultRanges = useMemo(
+    () => ({
+      Today: [getMoment(), getMoment()],
+      Yesterday: [
+        getMoment().subtract(1, 'days'),
+        getMoment().subtract(1, 'days'),
+      ],
+      'Last 7 Days': [getMoment().subtract(6, 'days'), getMoment()],
+      'Last 30 Days': [getMoment().subtract(29, 'days'), getMoment()],
+      'This Month': [getMoment().startOf('month'), getMoment().endOf('month')],
+      'Last Month': [
+        getMoment().subtract(1, 'month').startOf('month'),
+        getMoment().subtract(1, 'month').endOf('month'),
+      ],
+    }),
+    [getMoment]
+  );
 
-  // Show ranges configuration
-  const showRanges =
-    options.showRanges !== undefined
-      ? options.showRanges
-      : !options.singleDatePicker && (props.ranges !== undefined || true);
+  // Memoize showRanges configuration
+  const showRanges = useMemo(
+    () =>
+      options.showRanges !== undefined
+        ? options.showRanges
+        : !options.singleDatePicker && (props.ranges !== undefined || true),
+    [options.showRanges, options.singleDatePicker, props.ranges]
+  );
 
-  const ranges = showRanges ? props.ranges || defaultRanges : {};
+  const ranges = useMemo(
+    () => (showRanges ? props.ranges || defaultRanges : {}),
+    [showRanges, props.ranges, defaultRanges]
+  );
 
-  // State management
+  // Optimize state initialization with lazy initializers
   const [isOpen, setIsOpen] = useState(false);
   const [dropUp, setDropUp] = useState(false);
-  const [userStartDate, setUserStartDate] = useState(
+  const [userStartDate, setUserStartDate] = useState(() =>
     props.startDate ? getMoment(props.startDate) : null
   );
-  const [userEndDate, setUserEndDate] = useState(
+  const [userEndDate, setUserEndDate] = useState(() =>
     props.endDate ? getMoment(props.endDate) : null
   );
-  const [startDate, setStartDate] = useState(
+  const [startDate, setStartDate] = useState(() =>
     props.startDate ? getMoment(props.startDate) : getMoment()
   );
-  const [endDate, setEndDate] = useState(
+  const [endDate, setEndDate] = useState(() =>
     props.endDate ? getMoment(props.endDate) : getMoment()
   );
   const [chosenLabel, setChosenLabel] = useState('');
   const [showCalendars, setShowCalendars] = useState(
     options.alwaysShowCalendars
   );
-  const [leftCalendarMonth, setLeftCalendarMonth] = useState(
+  const [leftCalendarMonth, setLeftCalendarMonth] = useState(() =>
     getMoment(startDate)
   );
-  const [rightCalendarMonth, setRightCalendarMonth] = useState(
+  const [rightCalendarMonth, setRightCalendarMonth] = useState(() =>
     getMoment(startDate).add(1, 'month')
   );
 
@@ -134,76 +164,17 @@ const DateRangePicker = (props) => {
   const containerRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Format date for display
-  const formatDateDisplay = (date) => {
-    if (!date) return '';
-    return date.format(getDisplayFormat());
-  };
+  // Memoize formatDateDisplay to prevent recreation
+  const formatDateDisplay = useCallback(
+    (date) => {
+      if (!date) return getMoment().format(getDisplayFormat());
+      return date.format(getDisplayFormat());
+    },
+    [getDisplayFormat, getMoment]
+  );
 
-  // Effect for initial setup
-  useEffect(() => {
-    document.addEventListener('mousedown', handleOutsideClick);
-    updateCalendars();
-
-    if (options.autoUpdateInput) {
-      updateInputText();
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    };
-  }, []);
-
-  // Effect for updating input when dates change
-  useEffect(() => {
-    if (options.autoUpdateInput) {
-      updateInputText();
-    }
-    updateCalendars();
-  }, [startDate, endDate]);
-
-  // Effect to determine active range based on current date selection
-  useEffect(() => {
-    if (showRanges && !options.singleDatePicker && ranges) {
-      // Look for an exact match with predefined ranges
-      let matched = false;
-
-      Object.entries(ranges).forEach(([label, [rangeStart, rangeEnd]]) => {
-        if (
-          startDate.format('YYYY-MM-DD') === rangeStart.format('YYYY-MM-DD') &&
-          endDate.format('YYYY-MM-DD') === rangeEnd.format('YYYY-MM-DD')
-        ) {
-          setChosenLabel(label);
-          matched = true;
-        }
-      });
-
-      // If no match was found, set to custom range
-      if (!matched && isOpen) {
-        setChosenLabel(options.locale?.customRangeLabel || 'Custom Range');
-        if (!options.alwaysShowCalendars) {
-          setShowCalendars(true);
-        }
-      }
-    }
-  }, [startDate, endDate, isOpen]);
-
-  // Effect for showing/hiding calendars
-  useEffect(() => {
-    if (isOpen) {
-      if (options.alwaysShowCalendars || options.singleDatePicker) {
-        setShowCalendars(true);
-      } else {
-        // Show calendars if Custom Range is selected, otherwise hide them
-        const customRangeLabel =
-          options.locale?.customRangeLabel || 'Custom Range';
-        setShowCalendars(chosenLabel === customRangeLabel);
-      }
-    }
-  }, [isOpen, chosenLabel, options.alwaysShowCalendars]);
-
-  // Function to update input width based on content
-  const updateInputWidth = () => {
+  // Optimize updateInputWidth with useCallback
+  const updateInputWidth = useCallback(() => {
     if (inputRef.current) {
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
@@ -212,10 +183,10 @@ const DateRangePicker = (props) => {
         context.measureText(inputRef.current.value).width + 30;
       inputRef.current.style.width = `${updatedWidth}px`;
     }
-  };
+  }, []);
 
-  // Text input updates
-  const updateInputText = () => {
+  // Optimize updateInputText with useCallback
+  const updateInputText = useCallback(() => {
     if (inputRef.current) {
       const formattedStartDate = formatDateDisplay(startDate);
       const formattedEndDate = formatDateDisplay(endDate);
@@ -225,10 +196,17 @@ const DateRangePicker = (props) => {
         : `${formattedStartDate} ${options.locale.separator} ${formattedEndDate}`;
       updateInputWidth();
     }
-  };
+  }, [
+    startDate,
+    endDate,
+    options.singleDatePicker,
+    options.locale.separator,
+    formatDateDisplay,
+    updateInputWidth,
+  ]);
 
-  // Calendar updates
-  const updateCalendars = () => {
+  // Optimize updateCalendars with useCallback
+  const updateCalendars = useCallback(() => {
     setLeftCalendarMonth(startDate.clone());
     if (
       options.linkedCalendars ||
@@ -239,155 +217,171 @@ const DateRangePicker = (props) => {
     } else {
       setRightCalendarMonth(endDate.clone());
     }
-  };
+  }, [startDate, endDate, options.linkedCalendars]);
 
-  // Handle outside click
-  const handleOutsideClick = (e) => {
-    if (
-      isOpen &&
-      containerRef.current &&
-      !containerRef.current.contains(e.target) &&
-      e.target !== inputRef.current
-    ) {
-      setIsOpen(false);
-    }
-  };
-
-  // Toggle datepicker
-  const toggle = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    // Check if we need to display the calendar above the input
-    if (!isOpen && inputRef.current) {
-      const inputRect = inputRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const spaceBelow = windowHeight - inputRect.bottom;
-      const calendarHeight = 300; // approximate height of calendar
-
-      setDropUp(spaceBelow < calendarHeight);
-    }
-
-    setIsOpen((prev) => !prev);
-  };
-
-  // Handle date click with drag selection support
-  const handleDateClick = (date) => {
-    const customRangeLabel = options.locale?.customRangeLabel || 'Custom Range';
-
-    if (options.singleDatePicker) {
-      // Single date picker behavior - just set the date
-      handleSetStartDate(date);
-      if (options.autoApply) {
-        applyChanges(date, date, customRangeLabel);
+  // Optimize handleOutsideClick with useCallback
+  const handleOutsideClick = useCallback(
+    (e) => {
+      if (
+        isOpen &&
+        containerRef.current &&
+        !containerRef.current.contains(e.target) &&
+        e.target !== inputRef.current
+      ) {
+        setIsOpen(false);
       }
-      return;
-    }
+    },
+    [isOpen]
+  );
 
-    if (options.autoApply && chosenLabel !== customRangeLabel) {
-      applyChanges(startDate, endDate, chosenLabel);
-    }
+  // Optimize applyChanges with useCallback
+  const applyChanges = useCallback(
+    (_startDate, _endDate, _chosenLabel) => {
+      // Make sure startDate is before endDate
+      const finalStartDate = _startDate.isBefore(_endDate)
+        ? _startDate
+        : _endDate;
+      const finalEndDate = _startDate.isBefore(_endDate)
+        ? _endDate
+        : _startDate;
 
-    if (!isSelecting) {
-      // First click - start selection
-      handleSetStartDate(date);
-      setEndDate(date.clone());
-      setIsSelecting(true);
-    } else {
-      // Second click - end selection
+      setStartDate(finalStartDate);
+      setEndDate(finalEndDate);
+      setUserStartDate(finalStartDate);
+      setUserEndDate(finalEndDate);
       setIsSelecting(false);
+      setHoverDate(null);
 
-      // Ensure start date is before end date
-      if (date.isBefore(startDate)) {
-        setEndDate(startDate.clone());
-        handleSetStartDate(date);
-      } else {
-        handleSetEndDate(date);
+      if (props.onApply) {
+        props.onApply({
+          startDate: finalStartDate,
+          endDate: finalEndDate,
+          chosenLabel: _chosenLabel,
+        });
       }
 
-      setHoverDate(null);
-    }
-  };
+      setIsOpen(false);
+    },
+    [props.onApply]
+  );
 
-  // Handle date hover for range preview
-  const handleDateHover = (date) => {
-    if (!isSelecting) return;
-    setHoverDate(date);
-  };
+  // Optimize date setting functions with useCallback
+  const handleSetStartDate = useCallback(
+    (date) => {
+      const newDate = getMoment(date);
 
-  // Set start date
-  const handleSetStartDate = (date) => {
-    const newDate = getMoment(date);
+      if (!options.timePicker) {
+        newDate.startOf('day');
+      }
 
-    if (!options.timePicker) {
-      newDate.startOf('day');
-    }
+      setStartDate(newDate);
 
-    setStartDate(newDate);
+      if (options.singleDatePicker) {
+        setEndDate(newDate.clone());
+        setUserEndDate(newDate.clone());
+      } else if (newDate.isAfter(endDate)) {
+        setEndDate(newDate.clone());
+        setUserStartDate(newDate.clone());
+      }
+    },
+    [getMoment, options.timePicker, options.singleDatePicker, endDate]
+  );
 
-    if (options.singleDatePicker) {
-      setEndDate(newDate.clone());
-      setUserEndDate(newDate.clone());
-    } else if (newDate.isAfter(endDate)) {
-      // If the new start date is after the end date, adjust the end date
-      setEndDate(newDate.clone());
-      setUserStartDate(newDate.clone());
-    }
-  };
+  const handleSetEndDate = useCallback(
+    (date) => {
+      const newDate = getMoment(date);
 
-  // Set end date
-  const handleSetEndDate = (date) => {
-    const newDate = getMoment(date);
+      if (!options.timePicker) {
+        newDate.endOf('day');
+      }
 
-    if (!options.timePicker) {
-      newDate.endOf('day');
-    }
+      setEndDate(newDate);
 
-    setEndDate(newDate);
+      if (newDate.isBefore(startDate)) {
+        setStartDate(newDate.clone());
+      }
+    },
+    [getMoment, options.timePicker, startDate]
+  );
 
-    if (newDate.isBefore(startDate)) {
-      // If the new end date is before the start date, adjust the start date
-      setStartDate(newDate.clone());
-    }
-  };
+  // Optimize handlers with useCallback
+  const toggle = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-  // Apply changes
-  const applyChanges = (_startDate, _endDate, _chosenLabel) => {
-    // Make sure startDate is before endDate
-    const finalStartDate = _startDate.isBefore(_endDate)
-      ? _startDate
-      : _endDate;
-    const finalEndDate = _startDate.isBefore(_endDate) ? _endDate : _startDate;
+      if (!isOpen && inputRef.current) {
+        const inputRect = inputRef.current.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        const spaceBelow = windowHeight - inputRect.bottom;
+        const calendarHeight = 300; // approximate height of calendar
 
-    setStartDate(finalStartDate);
-    setEndDate(finalEndDate);
+        setDropUp(spaceBelow < calendarHeight);
+      }
 
-    // setting main container labels
-    setUserStartDate(finalStartDate);
-    setUserEndDate(finalEndDate);
+      setIsOpen((prev) => !prev);
+    },
+    [isOpen]
+  );
 
-    // Reset selection state
-    setIsSelecting(false);
-    setHoverDate(null);
+  const handleDateClick = useCallback(
+    (date) => {
+      const customRangeLabel =
+        options.locale?.customRangeLabel || 'Custom Range';
 
-    if (props.onApply) {
-      props.onApply({
-        startDate: finalStartDate,
-        endDate: finalEndDate,
-        chosenLabel: _chosenLabel,
-      });
-    }
+      if (options.singleDatePicker) {
+        handleSetStartDate(date);
+        if (options.autoApply) {
+          applyChanges(date, date, customRangeLabel);
+        }
+        return;
+      }
 
-    if (options.autoUpdateInput) {
-      updateInputText();
-    }
+      if (options.autoApply && chosenLabel !== customRangeLabel) {
+        applyChanges(startDate, endDate, chosenLabel);
+        return;
+      }
 
-    setIsOpen(false);
-  };
+      if (!isSelecting) {
+        handleSetStartDate(date);
+        setEndDate(date.clone());
+        setIsSelecting(true);
+      } else {
+        setIsSelecting(false);
 
-  // Cancel changes
-  const cancelChanges = () => {
-    // Reset selection state
+        if (date.isBefore(startDate)) {
+          setEndDate(startDate.clone());
+          handleSetStartDate(date);
+        } else {
+          handleSetEndDate(date);
+        }
+
+        setHoverDate(null);
+      }
+    },
+    [
+      options.singleDatePicker,
+      options.locale?.customRangeLabel,
+      options.autoApply,
+      chosenLabel,
+      isSelecting,
+      startDate,
+      endDate,
+      handleSetStartDate,
+      handleSetEndDate,
+      applyChanges,
+    ]
+  );
+
+  const handleDateHover = useCallback(
+    (date) => {
+      if (!isSelecting) return;
+      setHoverDate(date);
+    },
+    [isSelecting]
+  );
+
+  const cancelChanges = useCallback(() => {
     setIsSelecting(false);
     setHoverDate(null);
     setIsOpen(false);
@@ -395,28 +389,30 @@ const DateRangePicker = (props) => {
     if (props.onCancel) {
       props.onCancel();
     }
-  };
+  }, [props.onCancel]);
 
-  // Handle range click
-  const handleRangeClick = (start, end, label) => {
-    const customRangeLabel = options.locale?.customRangeLabel || 'Custom Range';
+  const handleRangeClick = useCallback(
+    (start, end, label) => {
+      const customRangeLabel =
+        options.locale?.customRangeLabel || 'Custom Range';
 
-    if (label === customRangeLabel) {
-      // If Custom Range is clicked, show the calendars but don't apply yet
-      setChosenLabel(label);
-      setShowCalendars(true);
-    } else {
-      // For predefined ranges, set the dates and auto-apply
-      if (start && end) {
-        setStartDate(getMoment(start));
-        setEndDate(getMoment(end));
+      if (label === customRangeLabel) {
         setChosenLabel(label);
+        setShowCalendars(true);
+      } else {
+        if (start && end) {
+          setStartDate(getMoment(start));
+          setEndDate(getMoment(end));
+          setChosenLabel(label);
+        }
+        setIsOpen(false);
+        applyChanges(getMoment(start), getMoment(end), label);
       }
-      setIsOpen(false);
-      applyChanges(getMoment(start), getMoment(end), label);
-    }
-  };
+    },
+    [options.locale?.customRangeLabel, getMoment, applyChanges]
+  );
 
+  // Optimize selectedRangeLabels with useMemo
   const originalSelectedRangeLabel = useMemo(
     () =>
       options.singleDatePicker
@@ -429,6 +425,7 @@ const DateRangePicker = (props) => {
       userStartDate,
       userEndDate,
       options.locale.separator,
+      formatDateDisplay,
     ]
   );
 
@@ -439,8 +436,102 @@ const DateRangePicker = (props) => {
         : `${formatDateDisplay(startDate)} ${
             options.locale.separator
           } ${formatDateDisplay(endDate)}`,
-    [options.singleDatePicker, startDate, endDate, options.locale.separator]
+    [
+      options.singleDatePicker,
+      startDate,
+      endDate,
+      options.locale.separator,
+      formatDateDisplay,
+    ]
   );
+
+  // Effect for initial setup with proper cleanup
+  useEffect(() => {
+    document.addEventListener('mousedown', handleOutsideClick);
+    updateCalendars();
+
+    if (options.autoUpdateInput) {
+      updateInputText();
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [
+    handleOutsideClick,
+    updateCalendars,
+    options.autoUpdateInput,
+    updateInputText,
+  ]);
+
+  // Effect for updating input when dates change
+  useEffect(() => {
+    if (options.autoUpdateInput) {
+      updateInputText();
+    }
+    updateCalendars();
+  }, [
+    startDate,
+    endDate,
+    options.autoUpdateInput,
+    updateInputText,
+    updateCalendars,
+  ]);
+
+  // Effect to determine active range based on current date selection
+  useEffect(() => {
+    if (showRanges && !options.singleDatePicker && ranges) {
+      let matched = false;
+      const displayFormat = getDisplayFormat();
+
+      Object.entries(ranges).forEach(([label, [rangeStart, rangeEnd]]) => {
+        if (
+          startDate.format(displayFormat) ===
+            rangeStart.format(displayFormat) &&
+          endDate.format(displayFormat) === rangeEnd.format(displayFormat)
+        ) {
+          setChosenLabel(label);
+          matched = true;
+        }
+      });
+
+      if (!matched && isOpen) {
+        setChosenLabel(options.locale?.customRangeLabel || 'Custom Range');
+        if (!options.alwaysShowCalendars) {
+          setShowCalendars(true);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    startDate,
+    endDate,
+    ranges,
+    showRanges,
+    options.singleDatePicker,
+    options.locale?.customRangeLabel,
+    options.alwaysShowCalendars,
+    getDisplayFormat,
+  ]);
+
+  // Effect for showing/hiding calendars
+  useEffect(() => {
+    if (isOpen) {
+      if (options.alwaysShowCalendars || options.singleDatePicker) {
+        setShowCalendars(true);
+      } else {
+        const customRangeLabel =
+          options.locale?.customRangeLabel || 'Custom Range';
+        setShowCalendars(chosenLabel === customRangeLabel);
+      }
+    }
+  }, [
+    isOpen,
+    chosenLabel,
+    options.alwaysShowCalendars,
+    options.singleDatePicker,
+    options.locale?.customRangeLabel,
+  ]);
 
   return (
     <div className="daterangepicker-container">
