@@ -488,3 +488,5 @@ const DateRangePicker = (props) => {
     </div>
   );
 };
+
+export default DateRangePicker;
