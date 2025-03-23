@@ -1,4 +1,3 @@
-/*eslint-disable*/
 import React, { memo, useMemo } from 'react';
 
 const Calendar = ({
@@ -11,13 +10,10 @@ const Calendar = ({
   onDateClick,
   onDateHover,
   onMonthChange,
-  isLeft,
   showDropdowns,
   utils,
-  locale,
   moment, // Timezone-aware moment function
   isSelecting,
-  dateFormat, // Date format for accessibility labels
 }) => {
   // Use utils to format date consistently
   const monthName = useMemo(() => {
