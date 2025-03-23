@@ -1,4 +1,4 @@
-// DateRangePicker.js (complete file with RangeSelector integration)
+/*eslint-disable*/
 import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
 import moment from 'moment-timezone';
 import Calendar from './Calendar';
@@ -140,17 +140,77 @@ const DateRangePicker = (props) => {
     return date.format(getDisplayFormat());
   };
 
-  // Calendar updates
-  const updateCalendars = () => {
-    setLeftCalendarMonth(startDate.clone());
-    if (
-      options.linkedCalendars ||
-      (startDate.month() === endDate.month() &&
-        startDate.year() === endDate.year())
-    ) {
-      setRightCalendarMonth(startDate.clone().add(1, 'month'));
-    } else {
-      setRightCalendarMonth(endDate.clone());
+  // Effect for initial setup
+  useEffect(() => {
+    document.addEventListener('mousedown', handleOutsideClick);
+    updateCalendars();
+
+    if (options.autoUpdateInput) {
+      updateInputText();
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, []);
+
+  // Effect for updating input when dates change
+  useEffect(() => {
+    if (options.autoUpdateInput) {
+      updateInputText();
+    }
+    updateCalendars();
+  }, [startDate, endDate]);
+
+  // Effect to determine active range based on current date selection
+  useEffect(() => {
+    if (showRanges && !options.singleDatePicker && ranges) {
+      // Look for an exact match with predefined ranges
+      let matched = false;
+
+      Object.entries(ranges).forEach(([label, [rangeStart, rangeEnd]]) => {
+        if (
+          startDate.format('YYYY-MM-DD') === rangeStart.format('YYYY-MM-DD') &&
+          endDate.format('YYYY-MM-DD') === rangeEnd.format('YYYY-MM-DD')
+        ) {
+          setChosenLabel(label);
+          matched = true;
+        }
+      });
+
+      // If no match was found, set to custom range
+      if (!matched && isOpen) {
+        setChosenLabel(options.locale?.customRangeLabel || 'Custom Range');
+        if (!options.alwaysShowCalendars) {
+          setShowCalendars(true);
+        }
+      }
+    }
+  }, [startDate, endDate, isOpen]);
+
+  // Effect for showing/hiding calendars
+  useEffect(() => {
+    if (isOpen) {
+      if (options.alwaysShowCalendars || options.singleDatePicker) {
+        setShowCalendars(true);
+      } else {
+        // Show calendars if Custom Range is selected, otherwise hide them
+        const customRangeLabel =
+          options.locale?.customRangeLabel || 'Custom Range';
+        setShowCalendars(chosenLabel === customRangeLabel);
+      }
+    }
+  }, [isOpen, chosenLabel, options.alwaysShowCalendars]);
+
+  // Function to update input width based on content
+  const updateInputWidth = () => {
+    if (inputRef.current) {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      context.font = getComputedStyle(inputRef.current).font;
+      const updatedWidth =
+        context.measureText(inputRef.current.value).width + 30;
+      inputRef.current.style.width = `${updatedWidth}px`;
     }
   };
 
@@ -163,6 +223,21 @@ const DateRangePicker = (props) => {
       inputRef.current.value = options.singleDatePicker
         ? formattedStartDate
         : `${formattedStartDate} ${options.locale.separator} ${formattedEndDate}`;
+      updateInputWidth();
+    }
+  };
+
+  // Calendar updates
+  const updateCalendars = () => {
+    setLeftCalendarMonth(startDate.clone());
+    if (
+      options.linkedCalendars ||
+      (startDate.month() === endDate.month() &&
+        startDate.year() === endDate.year())
+    ) {
+      setRightCalendarMonth(startDate.clone().add(1, 'month'));
+    } else {
+      setRightCalendarMonth(endDate.clone());
     }
   };
 
@@ -209,6 +284,10 @@ const DateRangePicker = (props) => {
       return;
     }
 
+    if (options.autoApply && chosenLabel !== customRangeLabel) {
+      applyChanges(startDate, endDate, chosenLabel);
+    }
+
     if (!isSelecting) {
       // First click - start selection
       handleSetStartDate(date);
@@ -226,9 +305,7 @@ const DateRangePicker = (props) => {
         handleSetEndDate(date);
       }
 
-      if (options.autoApply) {
-        applyChanges(startDate, endDate, customRangeLabel);
-      }
+      setHoverDate(null);
     }
   };
 
@@ -250,6 +327,11 @@ const DateRangePicker = (props) => {
 
     if (options.singleDatePicker) {
       setEndDate(newDate.clone());
+      setUserEndDate(newDate.clone());
+    } else if (newDate.isAfter(endDate)) {
+      // If the new start date is after the end date, adjust the end date
+      setEndDate(newDate.clone());
+      setUserStartDate(newDate.clone());
     }
   };
 
@@ -329,80 +411,41 @@ const DateRangePicker = (props) => {
         setStartDate(getMoment(start));
         setEndDate(getMoment(end));
         setChosenLabel(label);
-
-        if (options.autoApply) {
-          applyChanges(getMoment(start), getMoment(end), label);
-        }
       }
+      setIsOpen(false);
+      applyChanges(getMoment(start), getMoment(end), label);
     }
   };
 
-  // Effect for initial setup
-  useEffect(() => {
-    document.addEventListener('mousedown', handleOutsideClick);
-    updateCalendars();
+  const originalSelectedRangeLabel = useMemo(
+    () =>
+      options.singleDatePicker
+        ? formatDateDisplay(userStartDate)
+        : `${formatDateDisplay(userStartDate)} ${
+            options.locale.separator
+          } ${formatDateDisplay(userEndDate)}`,
+    [
+      options.singleDatePicker,
+      userStartDate,
+      userEndDate,
+      options.locale.separator,
+    ]
+  );
 
-    if (options.autoUpdateInput) {
-      updateInputText();
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    };
-  }, []);
-
-  // Effect for updating input when dates change
-  useEffect(() => {
-    if (options.autoUpdateInput) {
-      updateInputText();
-    }
-    updateCalendars();
-  }, [startDate, endDate]);
-
-  // Effect to determine active range based on current date selection
-  useEffect(() => {
-    if (showRanges && !options.singleDatePicker && ranges) {
-      // Look for an exact match with predefined ranges
-      let matched = false;
-
-      Object.entries(ranges).forEach(([label, [rangeStart, rangeEnd]]) => {
-        if (
-          startDate.format('YYYY-MM-DD') === rangeStart.format('YYYY-MM-DD') &&
-          endDate.format('YYYY-MM-DD') === rangeEnd.format('YYYY-MM-DD')
-        ) {
-          setChosenLabel(label);
-          matched = true;
-        }
-      });
-
-      // If no match was found, set to custom range
-      if (!matched && isOpen) {
-        setChosenLabel(options.locale?.customRangeLabel || 'Custom Range');
-        if (!options.alwaysShowCalendars) {
-          setShowCalendars(true);
-        }
-      }
-    }
-  }, [startDate, endDate, isOpen]);
-
-  // Effect for showing/hiding calendars
-  useEffect(() => {
-    if (isOpen) {
-      if (options.alwaysShowCalendars || options.singleDatePicker) {
-        setShowCalendars(true);
-      } else {
-        // Show calendars if Custom Range is selected, otherwise hide them
-        const customRangeLabel =
-          options.locale?.customRangeLabel || 'Custom Range';
-        setShowCalendars(chosenLabel === customRangeLabel);
-      }
-    }
-  }, [isOpen, chosenLabel, options.alwaysShowCalendars]);
+  const selectedRangeLabel = useMemo(
+    () =>
+      options.singleDatePicker
+        ? formatDateDisplay(startDate)
+        : `${formatDateDisplay(startDate)} ${
+            options.locale.separator
+          } ${formatDateDisplay(endDate)}`,
+    [options.singleDatePicker, startDate, endDate, options.locale.separator]
+  );
 
   return (
     <div className="daterangepicker-container">
       {options.showInputField ? (
-        <div className={`drp-input ${options.inputContainerClassName || ''}`}>
+        <div className={`drp-input ${options.inputContainerClassName}`}>
           <div className="drp-icon-left">{options.icon}</div>
           <input
             type="text"
@@ -426,10 +469,8 @@ const DateRangePicker = (props) => {
           <div className="drp-icon-left">{options.icon}</div>
           <span>
             {options.showFullDateRangeLabel || options.singleDatePicker
-              ? `${formatDateDisplay(userStartDate)} ${
-                  options.locale.separator
-                } ${formatDateDisplay(userEndDate)}`
-              : chosenLabel || 'Select date range'}
+              ? originalSelectedRangeLabel
+              : chosenLabel}
           </span>
         </div>
       )}
@@ -439,11 +480,11 @@ const DateRangePicker = (props) => {
           className={`daterangepicker 
             ${options.opens || 'right'} 
             ${dropUp ? 'drop-up' : 'drop-down'} 
-            ${showRanges && !options.singleDatePicker ? 'show-ranges' : ''} 
+            ${showRanges && !options.singleDatePicker ? 'show-ranges' : ''}
             ${options.singleDatePicker ? 'single' : ''} 
             ${options.timePicker ? 'has-time-picker' : ''}
             ${isSelecting ? 'selecting' : ''}
-            show-calendar`}
+            ${showCalendars ? 'show-calendar' : ''}`}
         >
           <div className="drp-content">
             {showRanges && !options.singleDatePicker && (
@@ -455,111 +496,126 @@ const DateRangePicker = (props) => {
               />
             )}
             <div className="drp-right-container">
-              <div className="drp-selected-container">
-                <span className="drp-selected">
-                  {options.singleDatePicker
-                    ? formatDateDisplay(startDate)
-                    : `${formatDateDisplay(startDate)} ${
-                        options.locale.separator
-                      } ${formatDateDisplay(endDate)}`}
-                </span>
-              </div>
+              {showCalendars && (
+                <>
+                  <div className="drp-selected-container">
+                    <span className="drp-selected">
+                      <div className="drp-icon-left">{options.icon}</div>
+                      {selectedRangeLabel}
+                    </span>
+                  </div>
 
-              <div className="drp-calendar-container">
-                <div className="drp-calendar left">
-                  <Calendar
-                    month={leftCalendarMonth}
-                    minDate={
-                      options.minDate ? getMoment(options.minDate) : undefined
-                    }
-                    maxDate={
-                      options.maxDate ? getMoment(options.maxDate) : undefined
-                    }
-                    startDate={startDate}
-                    endDate={endDate}
-                    hoverDate={hoverDate}
-                    isSelecting={isSelecting}
-                    onDateClick={handleDateClick}
-                    onDateHover={handleDateHover}
-                    onMonthChange={(month) =>
-                      setLeftCalendarMonth(getMoment(month))
-                    }
-                    isLeft={true}
-                    showDropdowns={options.showDropdowns}
-                    utils={utils}
-                    locale={options.locale}
-                    moment={getMoment}
-                    dateFormat={baseDateFormat}
-                  />
-
-                  {options.timePicker && (
-                    <TimePicker
-                      selected={startDate}
-                      onChange={handleSetStartDate}
-                      timePicker24Hour={options.timePicker24Hour}
-                      timePickerIncrement={options.timePickerIncrement}
-                      timePickerSeconds={options.timePickerSeconds}
-                      minDate={
-                        options.minDate ? getMoment(options.minDate) : undefined
-                      }
-                      maxDate={
-                        options.maxDate ? getMoment(options.maxDate) : undefined
-                      }
-                      moment={getMoment}
-                    />
-                  )}
-                </div>
-
-                {!options.singleDatePicker && (
-                  <div className="drp-calendar right">
-                    <Calendar
-                      month={rightCalendarMonth}
-                      minDate={
-                        options.minDate ? getMoment(options.minDate) : undefined
-                      }
-                      maxDate={
-                        options.maxDate ? getMoment(options.maxDate) : undefined
-                      }
-                      startDate={startDate}
-                      endDate={endDate}
-                      hoverDate={hoverDate}
-                      isSelecting={isSelecting}
-                      onDateClick={handleDateClick}
-                      onDateHover={handleDateHover}
-                      onMonthChange={(month) =>
-                        setRightCalendarMonth(getMoment(month))
-                      }
-                      isLeft={false}
-                      showDropdowns={options.showDropdowns}
-                      utils={utils}
-                      locale={options.locale}
-                      moment={getMoment}
-                      dateFormat={baseDateFormat}
-                    />
-
-                    {options.timePicker && (
-                      <TimePicker
-                        selected={endDate}
-                        onChange={handleSetEndDate}
-                        timePicker24Hour={options.timePicker24Hour}
-                        timePickerIncrement={options.timePickerIncrement}
-                        timePickerSeconds={options.timePickerSeconds}
-                        minDate={startDate}
+                  <div className="drp-calendar-container">
+                    <div className="drp-calendar left">
+                      <Calendar
+                        month={leftCalendarMonth}
+                        minDate={
+                          options.minDate
+                            ? getMoment(options.minDate)
+                            : undefined
+                        }
                         maxDate={
                           options.maxDate
                             ? getMoment(options.maxDate)
                             : undefined
                         }
+                        startDate={startDate}
+                        endDate={endDate}
+                        hoverDate={hoverDate}
+                        isSelecting={isSelecting}
+                        onDateClick={handleDateClick}
+                        onDateHover={handleDateHover}
+                        onMonthChange={(month) =>
+                          setLeftCalendarMonth(getMoment(month))
+                        }
+                        isLeft={true}
+                        showDropdowns={options.showDropdowns}
+                        utils={utils}
+                        locale={options.locale}
                         moment={getMoment}
+                        dateFormat={baseDateFormat}
                       />
+
+                      {options.timePicker && (
+                        <TimePicker
+                          selected={startDate}
+                          onChange={handleSetStartDate}
+                          timePicker24Hour={options.timePicker24Hour}
+                          timePickerIncrement={options.timePickerIncrement}
+                          timePickerSeconds={options.timePickerSeconds}
+                          minDate={
+                            options.minDate
+                              ? getMoment(options.minDate)
+                              : undefined
+                          }
+                          maxDate={
+                            options.maxDate
+                              ? getMoment(options.maxDate)
+                              : undefined
+                          }
+                          moment={getMoment}
+                          timeFormat={timeFormat}
+                        />
+                      )}
+                    </div>
+
+                    {!options.singleDatePicker && (
+                      <div className="drp-calendar right">
+                        <Calendar
+                          month={rightCalendarMonth}
+                          minDate={
+                            options.minDate
+                              ? getMoment(options.minDate)
+                              : undefined
+                          }
+                          maxDate={
+                            options.maxDate
+                              ? getMoment(options.maxDate)
+                              : undefined
+                          }
+                          startDate={startDate}
+                          endDate={endDate}
+                          hoverDate={hoverDate}
+                          isSelecting={isSelecting}
+                          onDateClick={handleDateClick}
+                          onDateHover={handleDateHover}
+                          onMonthChange={(month) =>
+                            setRightCalendarMonth(getMoment(month))
+                          }
+                          isLeft={false}
+                          showDropdowns={options.showDropdowns}
+                          utils={utils}
+                          locale={options.locale}
+                          moment={getMoment}
+                          dateFormat={baseDateFormat}
+                        />
+
+                        {options.timePicker && (
+                          <TimePicker
+                            selected={endDate}
+                            onChange={handleSetEndDate}
+                            timePicker24Hour={options.timePicker24Hour}
+                            timePickerIncrement={options.timePickerIncrement}
+                            timePickerSeconds={options.timePickerSeconds}
+                            minDate={startDate}
+                            maxDate={
+                              options.maxDate
+                                ? getMoment(options.maxDate)
+                                : undefined
+                            }
+                            moment={getMoment}
+                            timeFormat={timeFormat}
+                          />
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
+                </>
+              )}
             </div>
           </div>
 
-          {!options.autoApply && (
+          {showCalendars && !options.autoApply && (
             <div className="drp-buttons">
               <div className="drp-button-group">
                 <button
