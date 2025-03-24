@@ -1,79 +1,80 @@
-/* Global variables for DateRangePicker */
 :root {
-  /* Font sizes */
-  --font-size: 0.875rem; /* 14px base font size */
-  --small-font-size: 0.75rem; /* 12px for smaller elements */
+  /* Core Colors - Only these need to be set */
+  --color-primary: #337ab7;
+  --color-secondary: #fff;
+
+  /* Derived Colors */
+  --color-primary-hover: #286090;
+  --color-primary-border: #2e6da4;
+  --color-primary-light: #ebf4f8;
+  --color-secondary-hover: #f2f2f2;
+  --color-secondary-border: #ccc;
+
+  /* Text Colors */
+  --color-text: #333;
+  --color-text-light: #fff;
+  --color-text-muted: #999;
+
+  /* Background Colors */
+  --color-bg: #fff;
+  --color-bg-container: #fafafa;
+  --color-bg-hover: #eee;
+
+  /* Border Colors */
+  --color-border: #ddd;
+  --color-border-light: #efefef;
+
+  /* States */
+  --color-focus-shadow: rgba(51, 122, 183, 0.25);
+  --color-today-indicator: var(--color-primary);
+
+  /* Range States */
+  --color-range-bg: var(--color-primary-light);
+  --color-range-text: #000;
+  --color-range-preview-bg: rgba(235, 244, 248, 0.75);
+
+  /* Typography */
+  --font-size: 0.875rem;
+  --small-font-size: 0.75rem;
   --line-height: 1.4;
 
-  /* Colors */
-  --primary-icon-color: #337ab7;
-  --secondary-icon-color: #777;
-  --container-bg-color: #fafafa;
+  /* Spacing */
   --container-gap: 0.5rem;
-  --bg-color: #fff;
-  --text-color: #333;
-  --muted-text-color: #999;
-
-  /* Border colors */
-  --border-color: #ddd;
-  --border-light-color: #efefef; /* Lighter border for dropdowns */
-
-  /* Hover and active states */
-  --hover-bg-color: #eee;
-  --active-bg-color: #337ab7;
-  --active-text-color: #fff;
-
-  /* Range colors */
-  --in-range-bg-color: #ebf4f8;
-  --in-range-text-color: #000;
-  --preview-range-bg-color: rgba(235, 244, 248, 0.75);
-
-  /* Button colors */
-  --primary-bg-color: #337ab7;
-  --primary-border-color: #2e6da4;
-  --primary-text-color: #fff;
-  --secondary-bg-color: #fff;
-  --secondary-border-color: #ccc;
-
-  /* Special indicators */
-  --today-indicator-color: #3498db;
-
-  /* Focus state */
-  --focus-shadow-color: rgba(51, 122, 183, 0.25);
 }
 
-/* Input styling (replacing Bootstrap form-control) */
+/* Input styling */
 .drp-input {
   display: flex;
   gap: 0.25rem;
   width: 100%;
   padding: 0.375rem 0.75rem;
   font-size: var(--font-size);
-  line-height: 1.5;
-  color: var(--text-color);
-  background-color: var(--bg-color);
-  background-clip: padding-box;
-  border: 0.0625rem solid var(--border-color);
+  line-height: var(--line-height);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  border: 0.0625rem solid var(--color-border);
   border-radius: 0.25rem;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
   .drp-icon-left {
-    color: var(--primary-bg-color);
+    color: var(--color-primary);
     svg {
       width: 1rem;
       height: 1rem;
       path {
-        fill: var(--primary-bg-color);
+        fill: var(--color-primary);
       }
     }
   }
+
   &:focus {
-    border-color: var(--active-bg-color);
+    border-color: var(--color-primary);
     outline: 0;
-    box-shadow: 0 0 0 0.125rem var(--focus-shadow-color);
+    box-shadow: 0 0 0 0.125rem var(--color-focus-shadow);
   }
 }
 
-/* Button styling (replacing Bootstrap btn classes) */
+/* Button styling */
 .drp-btn {
   display: inline-block;
   font-weight: 400;
@@ -83,19 +84,19 @@
   user-select: none;
   padding: 0.375rem 0.75rem;
   font-size: var(--font-size);
-  line-height: 1.5;
+  line-height: var(--line-height);
   border-radius: 0.25rem;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 
   &-primary {
-    color: var(--primary-text-color);
-    background-color: var(--primary-bg-color);
-    border-color: var(--primary-border-color);
+    color: var(--color-text-light);
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-border);
 
     &:hover {
-      background-color: #286090;
-      border-color: #204d74;
+      background-color: var(--color-primary-hover);
+      border-color: var(--color-primary-border);
     }
 
     &:disabled {
@@ -105,13 +106,13 @@
   }
 
   &-default {
-    color: var(--text-color);
-    background-color: var(--secondary-bg-color);
-    border-color: var(--secondary-border-color);
+    color: var(--color-text);
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary-border);
 
     &:hover {
-      background-color: #f2f2f2;
-      border-color: #adadad;
+      background-color: var(--color-secondary-hover);
+      border-color: var(--color-secondary-border);
     }
   }
 }
@@ -122,7 +123,7 @@
   display: inline-block;
 
   .entry-label {
-    margin-right: 0.625rem; /* 10px */
+    margin-right: 0.625rem;
     font-weight: 500;
     cursor: pointer;
     padding: 0.25rem 0.5rem;
@@ -130,18 +131,20 @@
     align-items: center;
     gap: 0.25rem;
     color: inherit;
+
     .drp-icon-left {
       display: flex;
       align-items: center;
-      color: var(--primary-icon-color);
+      color: var(--color-primary);
       svg {
         width: 1rem;
         height: 1rem;
         path {
-          fill: var(--primary-icon-color);
+          fill: var(--color-primary);
         }
       }
     }
+
     &:hover {
       box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.1);
     }
@@ -151,21 +154,18 @@
 /* DateRangePicker Popup */
 .daterangepicker {
   position: absolute;
-  color: var(--text-color);
-  background-color: var(--container-bg-color);
+  color: var(--color-text);
+  background-color: var(--color-bg-container);
   border-radius: 0.25rem;
-  border: 0.0625rem solid var(--border-color);
+  border: 0.0625rem solid var(--color-border);
   width: auto;
-  //   min-width: 40rem;
-  max-width: none;
   padding: 0;
-  margin-top: 0.4375rem; /* 7px */
+  margin-top: 0.4375rem;
   top: 100%;
   left: 0;
   z-index: 3001;
   display: flex;
   flex-wrap: wrap;
-  //   flex-wrap:;
   flex-direction: row;
   font-size: var(--font-size);
   line-height: var(--line-height);
@@ -195,14 +195,15 @@
     .drp-right-container {
       padding-bottom: 0;
     }
+
     .drp-calendar-container {
       width: 100%;
-      padding: 0.625rem 0 0.625rem; /* 10px top and sides, 0 bottom */
+      padding: 0.625rem 0 0.625rem;
     }
 
     .drp-calendar.left {
       width: 100%;
-      margin: 0; //   max-width: 16.875rem; /* 270px */
+      margin: 0;
       user-select: none;
     }
 
@@ -212,7 +213,7 @@
   }
 
   &.drop-up {
-    margin-top: -0.4375rem; /* -7px */
+    margin-top: -0.4375rem;
     top: auto;
     bottom: 100%;
   }
@@ -233,11 +234,11 @@
   }
 
   .drp-ranges {
-    min-width: 10rem; /* 160px */
-    padding: 0.625rem; /* 10px */
+    min-width: 10rem;
+    padding: 0.625rem;
     margin: 0;
-    border-right: 0.0625rem solid var(--border-color);
-    background: var(--bg-color);
+    border-right: 0.0625rem solid var(--color-border);
+    background: var(--color-bg);
     flex-shrink: 0;
     order: 1;
 
@@ -247,26 +248,22 @@
       padding: 0;
 
       li.drp-range-option {
-        padding: 0.3125rem 0.75rem; /* 5px 12px */
+        padding: 0.3125rem 0.75rem;
         cursor: pointer;
-        border-radius: 0.25rem; /* 4px */
-        margin-bottom: 0.3125rem; /* 5px */
+        border-radius: 0.25rem;
+        margin-bottom: 0.3125rem;
         transition: background-color 0.2s ease;
-        background: var(--bg-color);
+        background: var(--color-bg);
 
         &:hover {
-          background-color: var(--hover-bg-color);
+          background-color: var(--color-bg-hover);
         }
 
         &.active {
-          background-color: var(--active-bg-color);
-          color: var(--active-text-color);
+          background-color: var(--color-primary);
+          color: var(--color-text-light);
           font-weight: 500;
           box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.1);
-        }
-
-        &:not(.active):hover {
-          background-color: var(--hover-bg-color);
         }
       }
     }
@@ -275,26 +272,27 @@
   .drp-right-container {
     order: 2;
     padding: var(--container-gap);
-    background: var(--container-bg-color);
+    background: var(--color-bg-container);
 
     .drp-selected-container .drp-selected {
+      display: flex;
+      gap: 0.25rem;
+      border: 1px solid var(--color-border-light);
+      background: var(--color-bg);
+      padding: 0.5rem;
+
       .drp-icon-left {
         display: flex;
         align-items: center;
-        color: var(--primary-icon-color);
+        color: var(--color-primary);
         svg {
           width: 1rem;
           height: 1rem;
           path {
-            fill: var(--secondary-icon-color);
+            fill: var(--color-text-muted);
           }
         }
       }
-      display: flex;
-      gap: 0.25rem;
-      border: 1px solid var(--border-light-color);
-      background: var(--bg-color);
-      padding: 0.5rem;
     }
   }
 
@@ -304,34 +302,33 @@
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: space-around;
-    // padding: 0.625rem 0.625rem 0 0.625rem; /* 10px top and sides, 0 bottom */
     order: 2;
-    margin-bottom: 0; /* Removed bottom margin as requested */
+    margin-bottom: 0;
   }
 
   .drp-calendar {
-    max-width: 16.875rem; /* 270px */
+    max-width: 16.875rem;
     width: 48%;
-    // margin: .5rem 0 0.625rem 0; /* 10px bottom margin for each calendar */
     margin: var(--container-gap) 0;
-    background: var(--bg-color);
+    background: var(--color-bg);
     padding: var(--container-gap);
-    border: 1px solid var(--border-light-color);
+    border: 1px solid var(--color-border-light);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     user-select: none;
+
     &.left {
-      margin-right: 0.3125rem; /* 5px */
+      margin-right: 0.3125rem;
     }
 
     &.right {
-      margin-left: 0.3125rem; /* 5px */
+      margin-left: 0.3125rem;
     }
   }
 
   &:not(.has-time-picker) .drp-calendar {
-    margin-bottom: 0.625rem; /* Still maintain 10px margin for visual separation */
+    margin-bottom: 0.625rem;
   }
 
   table {
@@ -343,9 +340,9 @@
     td,
     th {
       text-align: center;
-      width: 1.75rem; /* 28px */
-      height: 1.75rem; /* 28px */
-      border-radius: 0.25rem; /* 4px */
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 0.25rem;
       white-space: nowrap;
       cursor: pointer;
       vertical-align: middle;
@@ -354,7 +351,7 @@
 
   .month-header {
     text-align: center;
-    margin-bottom: 0.5rem; /* 8px */
+    margin-bottom: 0.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -369,30 +366,30 @@
     .month-navigation {
       cursor: pointer;
       user-select: none;
-      width: 1.75rem; /* 28px */
-      height: 1.75rem; /* 28px */
+      width: 1.75rem;
+      height: 1.75rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 0.25rem; /* 4px */
+      border-radius: 0.25rem;
 
       &:hover {
-        background-color: var(--hover-bg-color);
+        background-color: var(--color-bg-hover);
       }
 
       &.prev::before {
         content: '';
         border-style: solid;
-        border-width: 0.3125rem 0.4375rem 0.3125rem 0; /* 5px 7px 5px 0 */
-        border-color: transparent var(--text-color) transparent transparent;
+        border-width: 0.3125rem 0.4375rem 0.3125rem 0;
+        border-color: transparent var(--color-text) transparent transparent;
         display: block;
       }
 
       &.next::before {
         content: '';
         border-style: solid;
-        border-width: 0.3125rem 0 0.3125rem 0.4375rem; /* 5px 0 5px 7px */
-        border-color: transparent transparent transparent var(--text-color);
+        border-width: 0.3125rem 0 0.3125rem 0.4375rem;
+        border-color: transparent transparent transparent var(--color-text);
         display: block;
       }
     }
@@ -401,51 +398,51 @@
   select.monthselect,
   select.yearselect,
   .calendar-time select {
-    border: 0.0625rem solid var(--border-light-color);
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    border: 0.0625rem solid var(--color-border-light);
+    background-color: var(--color-bg);
+    color: var(--color-text);
     border-radius: 0.25rem;
     padding: 0.125rem 0.25rem;
   }
 
   td.available:hover,
   th.available:hover {
-    background-color: var(--hover-bg-color);
+    background-color: var(--color-bg-hover);
   }
 
   td.in-range {
-    background-color: var(--in-range-bg-color);
-    color: var(--in-range-text-color);
+    background-color: var(--color-range-bg);
+    color: var(--color-range-text);
     border-radius: 0;
   }
 
   td.start-date {
-    border-radius: 0.25rem 0 0 0.25rem; /* 4px 0 0 4px */
+    border-radius: 0.25rem 0 0 0.25rem;
   }
 
   td.end-date {
-    border-radius: 0 0.25rem 0.25rem 0; /* 0 4px 4px 0 */
+    border-radius: 0 0.25rem 0.25rem 0;
   }
 
   td.start-date.end-date {
-    border-radius: 0.25rem; /* 4px */
+    border-radius: 0.25rem;
   }
 
   td.active,
   td.active:hover {
-    background-color: var(--active-bg-color);
-    color: var(--active-text-color);
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
   }
 
   td.disabled,
   option.disabled {
-    color: var(--muted-text-color);
+    color: var(--color-text-muted);
     cursor: not-allowed;
     text-decoration: line-through;
   }
 
   td.off {
-    color: var(--muted-text-color);
+    color: var(--color-text-muted);
   }
 
   td.today {
@@ -455,18 +452,20 @@
       content: '';
       display: inline-block;
       border: solid transparent;
-      border-width: 0 0 0.4375rem 0.4375rem; /* 0 0 7px 7px */
-      border-bottom-color: var(--today-indicator-color);
+      border-width: 0 0 0.4375rem 0.4375rem;
+      border-bottom-color: var(--color-today-indicator);
       border-top-color: rgba(0, 0, 0, 0.2);
       position: absolute;
-      bottom: 0.25rem; /* 4px */
-      right: 0.25rem; /* 4px */
+      bottom: 0.25rem;
+      right: 0.25rem;
     }
   }
 
   &.selecting {
+    cursor: pointer;
+
     td.available:hover:not(.off):not(.disabled) {
-      background-color: var(--hover-bg-color);
+      background-color: var(--color-bg-hover);
       position: relative;
 
       &:after {
@@ -476,86 +475,81 @@
         right: 0;
         bottom: 0;
         left: 0;
-        background-color: var(--in-range-bg-color);
+        background-color: var(--color-range-bg);
         opacity: 0.5;
         pointer-events: none;
       }
     }
 
     td.in-range {
-      background-color: var(--preview-range-bg-color);
-      color: var(--in-range-text-color);
+      background-color: var(--color-range-preview-bg);
+      color: var(--color-range-text);
     }
 
     .drp-calendar td {
       cursor: pointer;
     }
-
-    cursor: pointer;
   }
 
   .calendar-time {
     text-align: center;
-    margin-top: 0.5rem; /* 8px top, 8px bottom */
-    padding-top: 0.5rem; /* 8px */
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: var(--small-font-size);
-    border-top: 1px solid var(--border-light-color);
+    border-top: 1px solid var(--color-border-light);
 
     select {
-      padding: 0.125rem; /* 2px */
-      margin: 0 0.1875rem; /* 0 3px */
+      padding: 0.125rem;
+      margin: 0 0.1875rem;
       font-size: var(--small-font-size);
     }
 
     .separator {
-      padding: 0 0.3125rem; /* 0 5px */
+      padding: 0 0.3125rem;
     }
   }
 
   .drp-buttons {
     clear: both;
     text-align: right;
-    padding: 0.625rem; /* 10px padding all around */
-    border-top: 0.0625rem solid var(--border-color);
+    padding: 0.625rem;
+    border-top: 0.0625rem solid var(--color-border-light);
     display: flex;
     justify-content: flex-end;
-    background: var(--container-bg-color);
+    background: var(--color-bg-container);
     align-self: baseline;
     align-items: center;
     width: 100%;
     position: relative;
     box-sizing: border-box;
     order: 3;
-    margin-top: 0; /* No margin needed with proper padding */
-    justify-content: flex-end;
-    border-top: 1px solid var(--border-light-color);
+
     .drp-button-group {
       display: flex;
 
       button {
-        margin-left: 0.5rem; /* 8px */
+        margin-left: 0.5rem;
       }
     }
 
     .drp-selected-container {
       padding: 10px;
       text-align: center;
-      border-bottom: 1px solid var(--border-light-color);
+      border-bottom: 1px solid var(--color-border-light);
       margin-bottom: 8px;
       font-weight: 600;
-      color: var(--text-color);
+      color: var(--color-text);
     }
   }
 }
 
 /* Responsive Styles - General mobile */
 @media (max-width: 47.9375rem) {
-  /* 767px */
   .daterangepicker {
-    min-width: 18.75rem; /* 300px */
+    min-width: 18.75rem;
     width: 95%;
     flex-direction: column;
     left: 50% !important;
@@ -565,7 +559,7 @@
     .drp-ranges {
       width: 100%;
       border-right: none;
-      border-bottom: 0.0625rem solid var(--border-color);
+      border-bottom: 0.0625rem solid var(--color-border);
     }
 
     .drp-calendar-container {
@@ -577,21 +571,20 @@
     }
 
     .drp-calendar.right {
-      margin-top: 0.625rem; /* 10px */
+      margin-top: 0.625rem;
     }
   }
 }
 
 /* Special styles for very small screens */
 @media (max-width: 20rem) {
-  /* 320px */
   .daterangepicker,
   .daterangepicker.single {
-    min-width: 16.25rem; /* 260px */
+    min-width: 16.25rem;
     width: 95%;
 
     .drp-selected {
-      max-width: 6.25rem; /* 100px */
+      max-width: 6.25rem;
     }
 
     .drp-buttons {
@@ -599,7 +592,7 @@
       align-items: stretch;
 
       .drp-button-group button {
-        margin: 0.3125rem 0 0 0; /* 5px 0 0 0 */
+        margin: 0.3125rem 0 0 0;
       }
     }
   }
@@ -608,14 +601,14 @@
 /* High Contrast Mode Support */
 @media (forced-colors: active) {
   .daterangepicker .drp-btn {
-    border: 0.125rem solid; /* 2px */
+    border: 0.125rem solid;
   }
 
   .daterangepicker td.in-range {
-    border: 0.0625rem solid; /* 1px */
+    border: 0.0625rem solid;
   }
 
   .daterangepicker .drp-ranges li.active {
-    border: 0.0625rem solid; /* 1px */
+    border: 0.0625rem solid;
   }
 }
