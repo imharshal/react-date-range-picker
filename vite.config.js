@@ -32,6 +32,7 @@ export default defineConfig({
           'react-dom': 'ReactDOM',
           'moment-timezone': 'moment-timezone',
         },
+        exports: 'named',
         // Improve chunk handling
         manualChunks: undefined,
       },
