@@ -117,8 +117,8 @@
   }
 }
 
-/* DateRangePicker Container */
-.daterangepicker-container {
+/* drp-main Container */
+.drp-main-container {
   position: relative;
   display: inline-block;
 
@@ -151,8 +151,8 @@
   }
 }
 
-/* DateRangePicker Popup */
-.daterangepicker {
+/* drp-main Popup */
+.drp-main {
   position: absolute;
   color: var(--color-text);
   background-color: var(--color-bg-container);
@@ -548,7 +548,7 @@
 
 /* Responsive Styles - General mobile */
 @media (max-width: 47.9375rem) {
-  .daterangepicker {
+  .drp-main {
     min-width: 18.75rem;
     width: 95%;
     flex-direction: column;
@@ -578,8 +578,8 @@
 
 /* Special styles for very small screens */
 @media (max-width: 20rem) {
-  .daterangepicker,
-  .daterangepicker.single {
+  .drp-main,
+  .drp-main.single {
     min-width: 16.25rem;
     width: 95%;
 
@@ -600,15 +600,15 @@
 
 /* High Contrast Mode Support */
 @media (forced-colors: active) {
-  .daterangepicker .drp-btn {
+  .drp-main .drp-btn {
     border: 0.125rem solid;
   }
 
-  .daterangepicker td.in-range {
+  .drp-main td.in-range {
     border: 0.0625rem solid;
   }
 
-  .daterangepicker .drp-ranges li.active {
+  .drp-main .drp-ranges li.active {
     border: 0.0625rem solid;
   }
 }
