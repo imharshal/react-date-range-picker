@@ -24,13 +24,15 @@ const RangeSelector = ({
   const allRanges = ranges || defaultRanges;
 
   return (
-    <div className="ranges">
-      <ul>
+    <div className="drp-ranges">
+      <ul className="drp-ranges-list">
         {Object.entries(allRanges).map(([label, [start, end]]) => (
           <li
             key={label}
             data-range-key={label}
-            className={activeRangeLabel === label ? 'active' : ''}
+            className={`drp-range-option ${
+              activeRangeLabel === label ? 'active' : ''
+            }`}
             onClick={() => onRangeClick(start.clone(), end.clone(), label)}
             role="button"
             tabIndex={0}
@@ -50,9 +52,9 @@ const RangeSelector = ({
         <li
           key="custom"
           data-range-key={locale.customRangeLabel}
-          className={
+          className={`drp-range-option ${
             activeRangeLabel === locale.customRangeLabel ? 'active' : ''
-          }
+          }`}
           onClick={() => onRangeClick(null, null, locale.customRangeLabel)}
           role="button"
           tabIndex={0}
