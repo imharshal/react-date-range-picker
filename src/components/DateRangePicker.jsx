@@ -134,10 +134,10 @@ const DateRangePicker = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropUp, setDropUp] = useState(false);
   const [userStartDate, setUserStartDate] = useState(() =>
-    props.startDate ? getMoment(props.startDate) : null
+    props.startDate ? getMoment(props.startDate) : getMoment()
   );
   const [userEndDate, setUserEndDate] = useState(() =>
-    props.endDate ? getMoment(props.endDate) : null
+    props.endDate ? getMoment(props.endDate) : getMoment()
   );
   const [startDate, setStartDate] = useState(() =>
     props.startDate ? getMoment(props.startDate) : getMoment()
@@ -495,14 +495,13 @@ const DateRangePicker = (props) => {
         }
       });
 
-      if (!matched && isOpen) {
+      if (!matched) {
         setChosenLabel(options.locale?.customRangeLabel || 'Custom Range');
         if (!options.alwaysShowCalendars) {
           setShowCalendars(true);
         }
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     startDate,
     endDate,
