@@ -546,7 +546,7 @@ const DateRangePicker = (props) => {
   ]);
 
   return (
-    <div className="daterangepicker-container" style={themeStyles}>
+    <div className="drp-main-container" style={themeStyles}>
       {options.showInputField ? (
         <div className={`drp-input ${options.inputContainerClassName}`}>
           <div className="drp-icon-left">{options.icon}</div>
@@ -580,7 +580,7 @@ const DateRangePicker = (props) => {
       {isOpen && (
         <div
           ref={containerRef}
-          className={`daterangepicker 
+          className={`drp-main 
             ${options.opens || 'right'} 
             ${dropUp ? 'drop-up' : 'drop-down'} 
             ${showRanges && !options.singleDatePicker ? 'show-ranges' : ''}
