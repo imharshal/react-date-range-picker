@@ -231,7 +231,7 @@
   }
 
   .ranges {
-    width: 10rem; /* 160px */
+    min-width: 10rem; /* 160px */
     padding: 0.625rem; /* 10px */
     margin: 0;
     border-right: 0.0625rem solid var(--border-color);
