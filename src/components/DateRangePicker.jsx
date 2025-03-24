@@ -11,9 +11,12 @@ import Calendar from './Calendar';
 import TimePicker from './TimePicker';
 import RangeSelector from './RangeSelector';
 import DateRangePickerUtils from '../utils/DateRangePickerUtils';
+import ThemeHandler from '../utils/ThemeHandler';
 import '../styles/styles.scss';
 
 const DateRangePicker = (props) => {
+  const { theme = 'default', customTheme = {} } = props; // Default to 'default' theme if not provided
+
   // Memoize timeZone to prevent recalculation
   const timeZone = useMemo(
     () => props.timeZone || moment.tz.guess(),
@@ -22,6 +25,16 @@ const DateRangePicker = (props) => {
 
   // Create utility instance once
   const utils = useMemo(() => new DateRangePickerUtils(), []);
+
+  // Create theme handler instance
+  const themeHandler = useMemo(() => new ThemeHandler(), []);
+
+  // Apply theme styles
+
+  const themeStyles = useMemo(
+    () => themeHandler.getStyles(theme, customTheme),
+    [theme, customTheme, themeHandler]
+  );
 
   // Create an optimized timezone-aware moment function
   const getMoment = useCallback(
@@ -533,7 +546,7 @@ const DateRangePicker = (props) => {
   ]);
 
   return (
-    <div className="daterangepicker-container">
+    <div className="daterangepicker-container" style={themeStyles}>
       {options.showInputField ? (
         <div className={`drp-input ${options.inputContainerClassName}`}>
           <div className="drp-icon-left">{options.icon}</div>
