@@ -1,63 +1,101 @@
 const defaultThemes = {
   default: {
+    // Core Colors - Primary and Secondary
+    '--color-primary': '#007bff',
+    '--color-secondary': '#fff',
+
+    // Typography
     '--font-size': '0.875rem',
     '--small-font-size': '0.75rem',
     '--line-height': '1.4',
 
-    '--primary-bg-color': '#007bff',
-    '--primary-icon-color': '#007bff',
-    '--primary-border-color': '#2e6da4',
-    '--primary-text-color': '#fff',
-    '--secondary-bg-color': '#fff',
-    '--secondary-border-color': '#ccc',
-    '--secondary-icon-color': '#495057',
-    '--today-indicator-color': '#3498db',
-    '--focus-shadow-color': 'rgba(51, 122, 183, 0.25)',
+    // Derived Primary Colors
+    '--color-primary-hover': '#0069d9',
+    '--color-primary-border': '#2e6da4',
 
-    '--container-bg-color': '#fafafa',
+    // Text Colors
+    '--color-text': '#333',
+    '--color-text-light': '#fff',
+    '--color-text-muted': '#999',
+
+    // Background Colors
+    '--color-bg': '#fff',
+    '--color-bg-container': '#fafafa',
+    '--color-bg-hover': '#eee',
+
+    // Border Colors
+    '--color-border': '#ddd',
+    '--color-border-light': '#efefef',
+
+    // Icon Colors
+    '--color-icon-primary': '#007bff',
+    '--color-icon-secondary': '#495057',
+
+    // States
+    '--color-today-indicator': '#3498db',
+    '--color-focus-shadow': 'rgba(51, 122, 183, 0.25)',
+
+    // Range States
+    '--color-range-bg': '#ebf4f8',
+    '--color-range-text': '#000',
+    '--color-range-preview-bg': 'rgba(235, 244, 248, 0.75)',
+
+    // Spacing
     '--container-gap': '0.5rem',
-    '--bg-color': '#fff',
-    '--text-color': '#333',
-    '--muted-text-color': '#999',
-    '--border-color': '#ddd',
-    '--border-light-color': '#efefef',
-    '--hover-bg-color': '#eee',
-    '--active-bg-color': '#337ab7',
-    '--active-text-color': '#fff',
-    '--in-range-bg-color': '#ebf4f8',
-    '--in-range-text-color': '#000',
-    '--preview-range-bg-color': 'rgba(235, 244, 248, 0.75)',
   },
+
   light: {
-    '--primary-bg-color': '#f8f9fa',
-    '--primary-border-color': '#dae0e5',
-    '--primary-text-color': '#212529',
-    '--secondary-bg-color': '#fff',
-    '--secondary-border-color': '#ccc',
-    '--today-indicator-color': '#adb5bd',
-    '--focus-shadow-color': 'rgba(108, 117, 125, 0.25)',
+    // Core colors
+    '--color-primary': '#f8f9fa',
+    '--color-secondary': '#fff',
+
+    // Derived colors
+    '--color-primary-border': '#dae0e5',
+    '--color-text-light': '#212529',
+
+    // Icon colors
+    '--color-icon-primary': '#f8f9fa',
+
+    // States
+    '--color-today-indicator': '#adb5bd',
+    '--color-focus-shadow': 'rgba(108, 117, 125, 0.25)',
   },
+
   dark: {
-    '--primary-bg-color': '#343a40',
-    '--primary-border-color': '#454d55',
-    '--primary-text-color': '#fff',
-    '--secondary-bg-color': '#495057',
-    '--secondary-border-color': '#6c757d',
-    '--secondary-icon-color': '#adb5bd',
-    '--container-bg-color': 'linear-gradient(180deg, #343a40 0%, #343a40 100%)',
-    '--bg-color': '#495057',
-    '--text-color': '#fff',
-    '--muted-text-color': '#adb5bd',
-    '--border-color': '#6c757d',
-    '--border-light-color': '#6c757d',
-    '--hover-bg-color': '#adb5bd',
-    '--active-bg-color': '#212529',
-    '--active-text-color': '#fff',
-    '--in-range-bg-color': '#495057',
-    '--in-range-text-color': '#fff',
-    '--preview-range-bg-color': 'rgba(108, 117, 125, 0.5)',
-    '--today-indicator-color': '#adb5bd',
-    '--focus-shadow-color': 'rgba(108, 117, 125, 0.25)',
+    // Core colors
+    '--color-primary': '#343a40',
+    '--color-secondary': '#495057',
+
+    // Derived colors
+    '--color-primary-hover': '#23272b',
+    '--color-primary-border': '#454d55',
+
+    // Text colors
+    '--color-text': '#fff',
+    '--color-text-light': '#fff',
+    '--color-text-muted': '#adb5bd',
+
+    // Background colors
+    '--color-bg': '#495057',
+    '--color-bg-container': 'linear-gradient(180deg, #343a40 0%, #343a40 100%)',
+    '--color-bg-hover': '#adb5bd',
+
+    // Border colors
+    '--color-border': '#6c757d',
+    '--color-border-light': '#6c757d',
+
+    // Icon colors
+    '--color-icon-primary': '#343a40',
+    '--color-icon-secondary': '#adb5bd',
+
+    // States
+    '--color-today-indicator': '#adb5bd',
+    '--color-focus-shadow': 'rgba(108, 117, 125, 0.25)',
+
+    // Range states
+    '--color-range-bg': '#495057',
+    '--color-range-text': '#fff',
+    '--color-range-preview-bg': 'rgba(108, 117, 125, 0.5)',
   },
 };
 
@@ -68,7 +106,7 @@ class ThemeHandler {
 
   getTheme(themeName, customTheme = {}) {
     const selectedTheme = this.themes[themeName] || this.themes.default;
-    return { ...selectedTheme, ...customTheme };
+    return { ...this.themes.default, ...selectedTheme, ...customTheme };
   }
 
   getStyles(themeName, customTheme = {}) {
