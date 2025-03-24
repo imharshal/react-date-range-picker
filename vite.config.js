@@ -20,7 +20,7 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'src/index.js'),
+      entry: path.resolve(__dirname, 'src/index.jsx'),
       name: 'DateRangePicker',
       fileName: (format) => `date-range-picker.${format}.js`,
     },
