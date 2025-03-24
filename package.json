@@ -3,17 +3,31 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "main": "./dist/date-range-picker.umd.js",
+  "module": "./dist/date-range-picker.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/date-range-picker.es.js",
+      "require": "./dist/date-range-picker.umd.js"
+    },
+    "./dist/style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepublishOnly": "yarn lint && yarn build"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
   },
   "dependencies": {
-    "moment": "^2.30.1",
-    "moment-timezone": "^0.5.48",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "moment-timezone": "^0.5.48"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
@@ -25,18 +39,26 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
     "sass-embedded": "^1.86.0",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "@swc/core": "^1.3.56",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "sass": "^1.63.3",
+    "vite-plugin-css-injected-by-js": "^3.1.1"
   },
-  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
-  "main": "eslint.config.js",
+  "description": "A flexible date range picker component for React",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/imharshal/react-date-range-picker.git"
   },
   "keywords": [
+    "react",
     "date",
+    "datepicker",
+    "daterangepicker",
     "range",
-    "picker"
+    "picker",
+    "calendar"
   ],
   "author": "Harshal Bokade (https://github.com/imharshal)",
   "license": "MIT",
