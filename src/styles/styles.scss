@@ -180,7 +180,7 @@
     min-width: auto;
     width: auto;
 
-    .ranges {
+    .drp-ranges {
       width: 100%;
     }
   }
@@ -232,7 +232,7 @@
     transition: opacity 0.2s ease, height 0.2s ease;
   }
 
-  .ranges {
+  .drp-ranges {
     min-width: 10rem; /* 160px */
     padding: 0.625rem; /* 10px */
     margin: 0;
@@ -241,32 +241,33 @@
     flex-shrink: 0;
     order: 1;
 
-    ul {
+    ul.drp-ranges-list {
       list-style: none;
       margin: 0;
       padding: 0;
-    }
 
-    li {
-      padding: 0.3125rem 0.75rem; /* 5px 12px */
-      cursor: pointer;
-      border-radius: 0.25rem; /* 4px */
-      margin-bottom: 0.3125rem; /* 5px */
-      transition: background-color 0.2s ease;
+      li.drp-range-option {
+        padding: 0.3125rem 0.75rem; /* 5px 12px */
+        cursor: pointer;
+        border-radius: 0.25rem; /* 4px */
+        margin-bottom: 0.3125rem; /* 5px */
+        transition: background-color 0.2s ease;
+        background: var(--bg-color);
 
-      &:hover {
-        background-color: var(--hover-bg-color);
-      }
+        &:hover {
+          background-color: var(--hover-bg-color);
+        }
 
-      &.active {
-        background-color: var(--active-bg-color);
-        color: var(--active-text-color);
-        font-weight: 500;
-        box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.1);
-      }
+        &.active {
+          background-color: var(--active-bg-color);
+          color: var(--active-text-color);
+          font-weight: 500;
+          box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.1);
+        }
 
-      &:not(.active):hover {
-        background-color: var(--hover-bg-color);
+        &:not(.active):hover {
+          background-color: var(--hover-bg-color);
+        }
       }
     }
   }
@@ -561,7 +562,7 @@
     right: auto !important;
     transform: translateX(-50%);
 
-    .ranges {
+    .drp-ranges {
       width: 100%;
       border-right: none;
       border-bottom: 0.0625rem solid var(--border-color);
@@ -614,7 +615,7 @@
     border: 0.0625rem solid; /* 1px */
   }
 
-  .daterangepicker .ranges li.active {
+  .daterangepicker .drp-ranges li.active {
     border: 0.0625rem solid; /* 1px */
   }
 }
