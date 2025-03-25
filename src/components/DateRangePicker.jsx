@@ -657,7 +657,11 @@ const DateRangePicker = (props) => {
             <input
               type="text"
               ref={inputRef}
-              style={{ border: 'none', outline: 'none' }}
+              style={{
+                border: 'none',
+                outline: 'none',
+                ...options.inputStyle,
+              }}
               className={props.inputClassName}
               onClick={toggle}
               onKeyDown={(e) => {
@@ -672,9 +676,14 @@ const DateRangePicker = (props) => {
             />
           </div>
         ) : (
-          <div className="entry-label" onClick={toggle}>
-            <div className="drp-icon-left">{options.icon}</div>
-            <span>
+          <div
+            className={`entry-label ${options.labelContainerClassName}`}
+            onClick={toggle}
+          >
+            <div className={`drp-icon-left ${options.iconClassName}`}>
+              {options.icon}
+            </div>
+            <span className={options.labelClassName}>
               {options.showFullDateRangeLabel || options.singleDatePicker
                 ? originalSelectedRangeLabel
                 : chosenLabel}
@@ -715,7 +724,11 @@ const DateRangePicker = (props) => {
                   <>
                     <div className="drp-selected-container">
                       <span className="drp-selected">
-                        <div className="drp-icon-left">{options.icon}</div>
+                        <div
+                          className={`drp-icon-left ${options.iconClassName}`}
+                        >
+                          {options.icon}
+                        </div>
                         {selectedRangeLabel}
                       </span>
                     </div>
