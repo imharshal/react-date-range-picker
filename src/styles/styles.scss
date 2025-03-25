@@ -177,8 +177,7 @@
   line-height: var(--line-height);
   font-family: inherit;
   box-shadow: 0 0.3125rem 0.625rem rgba(0, 0, 0, 0.1);
-  transition: right 0.15s ease-out, left 0.15s ease-out,
-    visibility 0.15s ease-out, top 0.15s ease-out;
+  transition: show-calender 0.15s ease-out, left 0.15s ease-out;
 
   &.show-calendar {
     display: flex;
@@ -187,10 +186,6 @@
   &:not(.show-calendar) {
     min-width: auto;
     width: auto;
-
-    .drp-ranges {
-      width: 100%;
-    }
   }
 
   .drp-content {
