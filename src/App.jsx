@@ -57,6 +57,7 @@ function App() {
     <>
       <div style={{ width: '100%' }}>
         <DateRangePicker
+          // disabled
           options={options}
           ranges={ranges}
           onApply={handleApply}
