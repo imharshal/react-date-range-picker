@@ -15,7 +15,7 @@ import DateRangePickerUtils from '../utils/DateRangePickerUtils';
 import ThemeHandler from '../utils/ThemeHandler';
 import '../styles/styles.scss';
 
-const DateRangePicker = (props) => {
+const DateRangePicker = ({ onApply, onCancel, ...props }) => {
   const { theme = 'default', customTheme = {} } = props; // Default to 'default' theme if not provided
 
   // Memoize timeZone to prevent recalculation
@@ -267,8 +267,8 @@ const DateRangePicker = (props) => {
       setIsSelecting(false);
       setHoverDate(null);
 
-      if (props.onApply) {
-        props.onApply({
+      if (onApply) {
+        onApply({
           startDate: finalStartDate,
           endDate: finalEndDate,
           chosenLabel: _chosenLabel,
@@ -277,7 +277,7 @@ const DateRangePicker = (props) => {
 
       setIsOpen(false);
     },
-    [props.onApply]
+    [onApply]
   );
 
   // Optimize date setting functions with useCallback
@@ -492,10 +492,10 @@ const DateRangePicker = (props) => {
     setHoverDate(null);
     setIsOpen(false);
 
-    if (props.onCancel) {
-      props.onCancel();
+    if (onCancel) {
+      onCancel();
     }
-  }, [props.onCancel]);
+  }, [onCancel]);
 
   const handleRangeClick = useCallback(
     (start, end, label) => {
