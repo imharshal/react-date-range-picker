@@ -122,6 +122,8 @@
   position: relative;
   display: inline-block;
   font-size: var(--font-size);
+  width: max-content;
+  height: max-content;
   &:disabled,
   &.drp-disabled {
     opacity: 50%;
@@ -177,7 +179,7 @@
   line-height: var(--line-height);
   font-family: inherit;
   box-shadow: 0 0.3125rem 0.625rem rgba(0, 0, 0, 0.1);
-  transition: show-calender 0.15s ease-out, left 0.15s ease-out;
+  transition: left 0.15s ease-out, left 0.15s ease-out;
 
   &.show-calendar {
     display: flex;
@@ -218,7 +220,6 @@
   &.drop-up {
     margin-top: -0.4375rem;
     top: auto;
-    bottom: 100%;
   }
 
   .drp-calendar-container,
