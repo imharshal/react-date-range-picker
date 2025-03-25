@@ -122,6 +122,12 @@
   position: relative;
   display: inline-block;
   font-size: var(--font-size);
+  &:disabled,
+  &.drp-disabled {
+    opacity: 50%;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
   .entry-label {
     margin-right: 0.625rem;
     font-weight: 500;

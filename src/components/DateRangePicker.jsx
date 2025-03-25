@@ -324,6 +324,7 @@ const DateRangePicker = (props) => {
     (e) => {
       e.preventDefault();
       e.stopPropagation();
+      if (props.disabled) return;
 
       if (!isOpen && displayRef.current) {
         const inputRect = displayRef.current.getBoundingClientRect();
@@ -374,7 +375,7 @@ const DateRangePicker = (props) => {
 
       setIsOpen((prev) => !prev);
     },
-    [isOpen, displayRef, options.opens]
+    [isOpen, props.disabled, displayRef, options.opens]
   );
 
   // Effect to handle position adjustments for all range selection changes
@@ -650,19 +651,20 @@ const DateRangePicker = (props) => {
 
   return (
     <>
-      <div ref={displayRef} className="drp-main-container" style={themeStyles}>
+      <div
+        ref={displayRef}
+        className={`drp-main-container ${props.disabled ? 'drp-disabled' : ''}`}
+        style={themeStyles}
+      >
         {options.showInputField ? (
-          <div className={`drp-input ${options.inputContainerClassName}`}>
+          <div className={`drp-input ${options.inputContainerClassName ?? ''}`}>
             <div className="drp-icon-left">{options.icon}</div>
             <input
               type="text"
               ref={inputRef}
-              style={{
-                border: 'none',
-                outline: 'none',
-                ...options.inputStyle,
-              }}
-              className={props.inputClassName}
+              style={{ border: 'none', outline: 'none', ...options.inputStyle }}
+              className={props.inputClassName ?? ''}
+              readOnly
               onClick={toggle}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -677,13 +679,13 @@ const DateRangePicker = (props) => {
           </div>
         ) : (
           <div
-            className={`entry-label ${options.labelContainerClassName}`}
+            className={`entry-label ${options.labelContainerClassName ?? ''}`}
             onClick={toggle}
           >
-            <div className={`drp-icon-left ${options.iconClassName}`}>
+            <div className={`drp-icon-left ${options.iconClassName ?? ''}`}>
               {options.icon}
             </div>
-            <span className={options.labelClassName}>
+            <span className={options.labelClassName ?? ''}>
               {options.showFullDateRangeLabel || options.singleDatePicker
                 ? originalSelectedRangeLabel
                 : chosenLabel}
