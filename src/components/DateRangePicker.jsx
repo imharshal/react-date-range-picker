@@ -632,18 +632,26 @@ const DateRangePicker = (props) => {
 
   // Effect for showing/hiding calendars
   useEffect(() => {
-    if (isOpen) {
-      if (options.alwaysShowCalendars || options.singleDatePicker) {
-        setShowCalendars(true);
-      } else {
-        const customRangeLabel =
-          options.locale?.customRangeLabel || 'Custom Range';
-        setShowCalendars(chosenLabel === customRangeLabel);
-      }
+    // Early return if the picker is not open
+    if (!isOpen) {
+      setShowCalendars(false);
+      return;
     }
+
+    const customRangeLabel = options.locale?.customRangeLabel || 'Custom Range';
+
+    // Determine when to show calendars
+    const shouldShowCalendars =
+      options.alwaysShowCalendars ||
+      options.singleDatePicker ||
+      (chosenLabel && chosenLabel === customRangeLabel) ||
+      !showRanges;
+
+    setShowCalendars(shouldShowCalendars);
   }, [
     isOpen,
     chosenLabel,
+    showRanges,
     options.alwaysShowCalendars,
     options.singleDatePicker,
     options.locale?.customRangeLabel,
