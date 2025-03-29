@@ -334,8 +334,10 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
 
   // Effect to handle position adjustments for overlay drp-main
   useEffect(() => {
-    isPositioned && setIsPositioned(false);
     if (isOpen && containerRef.current && displayRef.current) {
+      // Reset position state at the beginning of positioning calculation
+      setIsPositioned(false);
+
       // Force the container to render at its natural width first
       if (containerRef.current) {
         // Save original styles properly
@@ -371,27 +373,34 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
         const viewportHeight = window.innerHeight;
         const viewportWidth = window.innerWidth;
 
-        // FORCEFUL APPROACH:
-        // If the distance from input bottom to viewport bottom is less than the calendar height or
-        // if the input is in the lower 40% of the screen, ALWAYS open upward
-        const distanceToBottom = viewportHeight - inputRect.bottom;
-        const isInLowerPortion = inputRect.bottom > viewportHeight * 0.6;
+        // Calculate available space below and above
+        const spaceBelow = viewportHeight - inputRect.bottom;
+        const spaceAbove = inputRect.top;
 
-        // Override the drops setting if needed
+        // Determine appropriate drop direction
         let drops = options.drops;
 
-        // Force calendar to open upward when near bottom regardless of configured setting
-        if (
-          drops === 'auto' ||
-          isInLowerPortion ||
-          distanceToBottom < containerHeight
-        ) {
-          drops = 'up';
+        // Logic for "auto" mode
+        if (drops === 'auto') {
+          // Only open upward if necessary based on available space
+          if (spaceBelow < containerHeight && spaceAbove >= containerHeight) {
+            drops = 'up';
+          }
+          // If it doesn't fit either way, choose the side with more space
+          else if (
+            spaceBelow < containerHeight &&
+            spaceAbove < containerHeight
+          ) {
+            drops = spaceAbove > spaceBelow ? 'up' : 'down';
+          } else {
+            drops = 'down'; // Default to down when there's enough space
+          }
         }
 
         // Calculate position based on drop direction
         let containerTop;
         if (drops === 'up') {
+          // Position calendar above with a modest offset
           containerTop = inputRect.top - containerHeight;
         } else {
           containerTop = inputRect.bottom;
@@ -430,31 +439,19 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
         const finalPosition = {
           top: containerTop + scrollY,
           left: containerLeft + scrollX,
-          right: undefined, // We're using left positioning for simplicity
+          right: undefined,
         };
 
-        // Add a console.log to debug the positioning logic
-        console.log({
-          inputPosition: { top: inputRect.top, bottom: inputRect.bottom },
-          viewportHeight,
-          distanceToBottom,
-          isInLowerPortion,
-          drops,
-          finalPosition,
-        });
-
         setPosition(finalPosition);
+
+        // Mark as positioned immediately - no timeout
+        setIsPositioned(true);
       }
-      setIsPositioned(true);
+    } else if (!isOpen) {
+      // Reset positioned state when closing
+      setIsPositioned(false);
     }
-  }, [
-    isOpen,
-    options.opens,
-    options.drops,
-    chosenLabel,
-    showCalendars,
-    isPositioned,
-  ]);
+  }, [isOpen, options.opens, options.drops, chosenLabel, showCalendars]);
   const handleDateClick = useCallback(
     (date) => {
       const customRangeLabel =
