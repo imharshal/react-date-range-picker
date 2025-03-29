@@ -149,6 +149,46 @@
       box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.1);
     }
   }
+  .drp-tooltip {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3000;
+    background-color: var(--color-bg);
+    border-radius: 0.25rem;
+    border: 0.0625rem solid var(--color-border);
+    width: auto;
+    padding: 0.625rem;
+    margin-top: 0.25rem;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    font-family: inherit;
+    box-shadow: 0 0.3125rem 0.625rem rgba(0, 0, 0, 0.1);
+    transition: right 0.15s ease-out, left 0.15s ease-out,
+      visibility 0.15s ease-out, top 0.15s ease-out;
+    color: var(--color-text);
+    text-wrap: nowrap;
+  }
+
+  .drp-tooltip.edge-left {
+    left: 0;
+    transform: translateX(0); /* Align to the left edge */
+  }
+
+  .drp-tooltip.edge-right {
+    left: auto;
+    right: 0;
+    transform: translateX(0); /* Align to the right edge */
+  }
+  &:hover {
+    .drp-tooltip {
+      display: flex;
+      align-items: center;
+      gap: var(--container-gap);
+    }
+  }
 }
 
 /* drp-main Popup */
