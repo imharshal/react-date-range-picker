@@ -744,30 +744,29 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
             </span>
           </div>
         )}
-        {options.showTooltip ||
-          (options.tooltip?.show && !isOpen && (
+        {(options.showTooltip || options.tooltip?.show) && !isOpen && (
+          <div
+            {...options.tooltip?.containerAttr}
+            className={`drp-tooltip ${
+              options.tooltip?.containerClassName ?? ''
+            }`}
+          >
+            {options.tooltip?.showSelectedRange && (
+              <div className={`drp-icon-left ${options.iconClassName ?? ''}`}>
+                {options.icon}
+              </div>
+            )}
             <div
-              {...options.tooltip?.containerAttr}
-              className={`drp-tooltip ${
-                options.tooltip?.containerClassName ?? ''
+              className={`drp-tooltip-content ${
+                options.tooltip?.contentClassName ?? ''
               }`}
             >
-              {options.tooltip?.showSelectedRange && (
-                <div className={`drp-icon-left ${options.iconClassName ?? ''}`}>
-                  {options.icon}
-                </div>
-              )}
-              <div
-                className={`drp-tooltip-content ${
-                  options.tooltip?.contentClassName ?? ''
-                }`}
-              >
-                {options.tooltip?.content || options.tooltip?.showSelectedRange
-                  ? selectedRangeLabel
-                  : props.placeholder}
-              </div>
+              {options.tooltip?.content || options.tooltip?.showSelectedRange
+                ? selectedRangeLabel
+                : props.placeholder}
             </div>
-          ))}
+          </div>
+        )}
       </div>
       {isOpen &&
         createPortal(
