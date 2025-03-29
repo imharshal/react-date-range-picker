@@ -143,6 +143,8 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
     [showRanges, props.ranges, defaultRanges]
   );
 
+  // state to track whether the calendar is ready to be visible
+  const [isPositioned, setIsPositioned] = useState(false);
   // Optimize state initialization with lazy initializers
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -332,6 +334,7 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
 
   // Effect to handle position adjustments for overlay drp-main
   useEffect(() => {
+    isPositioned && setIsPositioned(false);
     if (isOpen && containerRef.current && displayRef.current) {
       // Force the container to render at its natural width first
       if (containerRef.current) {
@@ -442,8 +445,16 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
 
         setPosition(finalPosition);
       }
+      setIsPositioned(true);
     }
-  }, [isOpen, options.opens, options.drops, chosenLabel, showCalendars]);
+  }, [
+    isOpen,
+    options.opens,
+    options.drops,
+    chosenLabel,
+    showCalendars,
+    isPositioned,
+  ]);
   const handleDateClick = useCallback(
     (date) => {
       const customRangeLabel =
@@ -704,21 +715,21 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
           </div>
         )}
       </div>
-      {createPortal(
-        <div
-          style={{
-            ...themeStyles,
-            position: 'absolute',
-            top: position.top,
-            left: position.left !== undefined ? position.left : 'auto',
-            right: position.right !== undefined ? position.right : 'auto',
-            // top: position.top,
-            // left: position.left,
-            // position: 'absolute',
-            visibility: isOpen ? 'visible' : 'hidden',
-          }}
-          ref={containerRef}
-          className={`drp-main 
+      {isOpen &&
+        createPortal(
+          <div
+            style={{
+              ...themeStyles,
+              position: 'absolute',
+              top: position.top,
+              left: position.left !== undefined ? position.left : 'auto',
+              right: position.right !== undefined ? position.right : 'auto',
+              opacity: isPositioned ? 1 : 0, // Only show when positioned
+              transition: isPositioned ? 'opacity 0.15s ease-in' : 'none',
+              visibility: isOpen ? 'visible' : 'hidden',
+            }}
+            ref={containerRef}
+            className={`drp-main 
             ${options.opens || 'right'} 
             ${dropUp ? 'drop-up' : 'drop-down'} 
             ${showRanges && !options.singleDatePicker ? 'show-ranges' : ''}
@@ -726,86 +737,34 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
             ${options.timePicker ? 'has-time-picker' : ''}
             ${isSelecting ? 'selecting' : ''}
             ${showCalendars ? 'show-calendar' : ''}`}
-        >
-          <div className="drp-content">
-            {showRanges && !options.singleDatePicker && (
-              <RangeSelector
-                ranges={ranges}
-                locale={options.locale}
-                onRangeClick={handleRangeClick}
-                activeRangeLabel={chosenLabel}
-              />
-            )}
-            {showCalendars && (
-              <div className="drp-right-container">
-                <>
-                  <div className="drp-selected-container">
-                    <span className="drp-selected">
-                      <div className={`drp-icon-left ${options.iconClassName}`}>
-                        {options.icon}
-                      </div>
-                      {selectedRangeLabel}
-                    </span>
-                  </div>
-
-                  <div className="drp-calendar-container">
-                    <div className="drp-calendar left">
-                      <Calendar
-                        month={leftCalendarMonth}
-                        minDate={
-                          options.minDate
-                            ? getMoment(options.minDate)
-                            : undefined
-                        }
-                        maxDate={
-                          options.maxDate
-                            ? getMoment(options.maxDate)
-                            : undefined
-                        }
-                        startDate={startDate}
-                        endDate={endDate}
-                        hoverDate={hoverDate}
-                        isSelecting={isSelecting}
-                        onDateClick={handleDateClick}
-                        onDateHover={handleDateHover}
-                        onMonthChange={(month) =>
-                          setLeftCalendarMonth(getMoment(month))
-                        }
-                        isLeft={true}
-                        showDropdowns={options.showDropdowns}
-                        utils={utils}
-                        locale={options.locale}
-                        moment={getMoment}
-                        dateFormat={baseDateFormat}
-                      />
-
-                      {options.timePicker && (
-                        <TimePicker
-                          selected={startDate}
-                          onChange={handleSetStartDate}
-                          timePicker24Hour={options.timePicker24Hour}
-                          timePickerIncrement={options.timePickerIncrement}
-                          timePickerSeconds={options.timePickerSeconds}
-                          minDate={
-                            options.minDate
-                              ? getMoment(options.minDate)
-                              : undefined
-                          }
-                          maxDate={
-                            options.maxDate
-                              ? getMoment(options.maxDate)
-                              : undefined
-                          }
-                          moment={getMoment}
-                          timeFormat={timeFormat}
-                        />
-                      )}
+          >
+            <div className="drp-content">
+              {showRanges && !options.singleDatePicker && (
+                <RangeSelector
+                  ranges={ranges}
+                  locale={options.locale}
+                  onRangeClick={handleRangeClick}
+                  activeRangeLabel={chosenLabel}
+                />
+              )}
+              {showCalendars && (
+                <div className="drp-right-container">
+                  <>
+                    <div className="drp-selected-container">
+                      <span className="drp-selected">
+                        <div
+                          className={`drp-icon-left ${options.iconClassName}`}
+                        >
+                          {options.icon}
+                        </div>
+                        {selectedRangeLabel}
+                      </span>
                     </div>
 
-                    {!options.singleDatePicker && (
-                      <div className="drp-calendar right">
+                    <div className="drp-calendar-container">
+                      <div className="drp-calendar left">
                         <Calendar
-                          month={rightCalendarMonth}
+                          month={leftCalendarMonth}
                           minDate={
                             options.minDate
                               ? getMoment(options.minDate)
@@ -823,9 +782,9 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
                           onDateClick={handleDateClick}
                           onDateHover={handleDateHover}
                           onMonthChange={(month) =>
-                            setRightCalendarMonth(getMoment(month))
+                            setLeftCalendarMonth(getMoment(month))
                           }
-                          isLeft={false}
+                          isLeft={true}
                           showDropdowns={options.showDropdowns}
                           utils={utils}
                           locale={options.locale}
@@ -835,12 +794,16 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
 
                         {options.timePicker && (
                           <TimePicker
-                            selected={endDate}
-                            onChange={handleSetEndDate}
+                            selected={startDate}
+                            onChange={handleSetStartDate}
                             timePicker24Hour={options.timePicker24Hour}
                             timePickerIncrement={options.timePickerIncrement}
                             timePickerSeconds={options.timePickerSeconds}
-                            minDate={startDate}
+                            minDate={
+                              options.minDate
+                                ? getMoment(options.minDate)
+                                : undefined
+                            }
                             maxDate={
                               options.maxDate
                                 ? getMoment(options.maxDate)
@@ -851,37 +814,89 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
                           />
                         )}
                       </div>
-                    )}
-                  </div>
-                </>
+
+                      {!options.singleDatePicker && (
+                        <div className="drp-calendar right">
+                          <Calendar
+                            month={rightCalendarMonth}
+                            minDate={
+                              options.minDate
+                                ? getMoment(options.minDate)
+                                : undefined
+                            }
+                            maxDate={
+                              options.maxDate
+                                ? getMoment(options.maxDate)
+                                : undefined
+                            }
+                            startDate={startDate}
+                            endDate={endDate}
+                            hoverDate={hoverDate}
+                            isSelecting={isSelecting}
+                            onDateClick={handleDateClick}
+                            onDateHover={handleDateHover}
+                            onMonthChange={(month) =>
+                              setRightCalendarMonth(getMoment(month))
+                            }
+                            isLeft={false}
+                            showDropdowns={options.showDropdowns}
+                            utils={utils}
+                            locale={options.locale}
+                            moment={getMoment}
+                            dateFormat={baseDateFormat}
+                          />
+
+                          {options.timePicker && (
+                            <TimePicker
+                              selected={endDate}
+                              onChange={handleSetEndDate}
+                              timePicker24Hour={options.timePicker24Hour}
+                              timePickerIncrement={options.timePickerIncrement}
+                              timePickerSeconds={options.timePickerSeconds}
+                              minDate={startDate}
+                              maxDate={
+                                options.maxDate
+                                  ? getMoment(options.maxDate)
+                                  : undefined
+                              }
+                              moment={getMoment}
+                              timeFormat={timeFormat}
+                            />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                </div>
+              )}
+            </div>
+
+            {showCalendars && !options.autoApply && (
+              <div className="drp-buttons">
+                <div className="drp-button-group">
+                  <button
+                    className={`drp-btn drp-btn-default ${options.cancelButtonClasses}`}
+                    onClick={cancelChanges}
+                    type="button"
+                  >
+                    {options.locale?.cancelLabel || 'Cancel'}
+                  </button>
+                  <button
+                    className={`drp-btn drp-btn-primary ${options.applyButtonClasses}`}
+                    onClick={() =>
+                      applyChanges(startDate, endDate, chosenLabel)
+                    }
+                    disabled={!endDate || startDate.isAfter(endDate)}
+                    type="button"
+                  >
+                    {options.locale?.applyLabel || 'Apply'}
+                  </button>
+                </div>
               </div>
             )}
-          </div>
-
-          {showCalendars && !options.autoApply && (
-            <div className="drp-buttons">
-              <div className="drp-button-group">
-                <button
-                  className={`drp-btn drp-btn-default ${options.cancelButtonClasses}`}
-                  onClick={cancelChanges}
-                  type="button"
-                >
-                  {options.locale?.cancelLabel || 'Cancel'}
-                </button>
-                <button
-                  className={`drp-btn drp-btn-primary ${options.applyButtonClasses}`}
-                  onClick={() => applyChanges(startDate, endDate, chosenLabel)}
-                  disabled={!endDate || startDate.isAfter(endDate)}
-                  type="button"
-                >
-                  {options.locale?.applyLabel || 'Apply'}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>,
-        document.body
-      )}
+          </div>,
+          document.body
+        )}
     </>
   );
 };
