@@ -355,81 +355,95 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
         containerRef.current.style.left = originalLeft;
         containerRef.current.style.right = originalRight;
 
-        // Get input element position
+        // Get input element position relative to viewport
         const inputRect = displayRef.current.getBoundingClientRect();
 
-        // Calculate window dimensions accounting for scrollbar
-        const scrollbarWidth =
-          window.innerWidth - document.documentElement.clientWidth;
-        const windowWidth =
-          document.documentElement.clientWidth - scrollbarWidth - 10;
-        const windowHeight = window.innerHeight;
+        // Get scroll position
+        const scrollX =
+          window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollY =
+          window.pageYOffset || document.documentElement.scrollTop;
 
-        const parentRightEdge = windowWidth;
+        // Get viewport dimensions
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
 
-        // Handle vertical positioning (drops)
-        let containerTop = inputRect.top + inputRect.height;
+        // FORCEFUL APPROACH:
+        // If the distance from input bottom to viewport bottom is less than the calendar height or
+        // if the input is in the lower 40% of the screen, ALWAYS open upward
+        const distanceToBottom = viewportHeight - inputRect.bottom;
+        const isInLowerPortion = inputRect.bottom > viewportHeight * 0.6;
+
+        // Override the drops setting if needed
         let drops = options.drops;
 
-        if (drops === 'auto') {
-          if (containerTop + containerHeight >= windowHeight) {
-            containerTop = inputRect.top - containerHeight;
-            drops = 'up';
-          }
-        } else if (drops === 'up') {
-          containerTop = inputRect.top - containerHeight;
+        // Force calendar to open upward when near bottom regardless of configured setting
+        if (
+          drops === 'auto' ||
+          isInLowerPortion ||
+          distanceToBottom < containerHeight
+        ) {
+          drops = 'up';
         }
 
-        // Set dropUp state based on final drops value
+        // Calculate position based on drop direction
+        let containerTop;
+        if (drops === 'up') {
+          containerTop = inputRect.top - containerHeight;
+        } else {
+          containerTop = inputRect.bottom;
+        }
+
+        // Set dropUp state
         setDropUp(drops === 'up');
 
         // Handle horizontal positioning (opens)
         let containerLeft;
-        let containerRight;
 
         switch (options.opens) {
           case 'left':
-            containerRight = parentRightEdge - inputRect.left - inputRect.width;
-            if (containerWidth + containerRight > windowWidth) {
-              containerLeft = 10;
-              containerRight = 'auto';
-            } else {
-              containerLeft = 'auto';
-            }
+            containerLeft = Math.max(0, inputRect.right - containerWidth);
             break;
 
           case 'center':
-            containerLeft =
-              inputRect.left + inputRect.width / 2 - containerWidth / 2;
-            if (containerLeft < 0) {
-              containerLeft = 10;
-            } else if (containerLeft + containerWidth > windowWidth) {
-              containerLeft = 'auto';
-              containerRight = 10;
+            containerLeft = Math.max(
+              0,
+              inputRect.left + inputRect.width / 2 - containerWidth / 2
+            );
+            if (containerLeft + containerWidth > viewportWidth) {
+              containerLeft = Math.max(0, viewportWidth - containerWidth - 10);
             }
             break;
 
           default: // right
             containerLeft = inputRect.left;
-            if (containerLeft + containerWidth > windowWidth) {
-              containerLeft = 'auto';
-              containerRight = 10;
+            if (containerLeft + containerWidth > viewportWidth) {
+              containerLeft = Math.max(0, viewportWidth - containerWidth - 10);
             }
             break;
         }
 
-        // Apply final position
+        // Apply final position with scroll offset
         const finalPosition = {
-          top: containerTop,
-          left: containerLeft !== 'auto' ? containerLeft : undefined,
-          right: containerRight !== 'auto' ? containerRight : undefined,
+          top: containerTop + scrollY,
+          left: containerLeft + scrollX,
+          right: undefined, // We're using left positioning for simplicity
         };
+
+        // Add a console.log to debug the positioning logic
+        console.log({
+          inputPosition: { top: inputRect.top, bottom: inputRect.bottom },
+          viewportHeight,
+          distanceToBottom,
+          isInLowerPortion,
+          drops,
+          finalPosition,
+        });
 
         setPosition(finalPosition);
       }
     }
   }, [isOpen, options.opens, options.drops, chosenLabel, showCalendars]);
-
   const handleDateClick = useCallback(
     (date) => {
       const customRangeLabel =
