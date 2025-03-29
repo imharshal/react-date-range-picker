@@ -122,14 +122,6 @@
   position: relative;
   display: inline-block;
   font-size: var(--font-size);
-  width: max-content;
-  height: max-content;
-  &:disabled,
-  &.drp-disabled {
-    opacity: 50%;
-    pointer-events: none;
-    cursor: not-allowed;
-  }
   .entry-label {
     margin-right: 0.625rem;
     font-weight: 500;
@@ -179,7 +171,8 @@
   line-height: var(--line-height);
   font-family: inherit;
   box-shadow: 0 0.3125rem 0.625rem rgba(0, 0, 0, 0.1);
-  transition: left 0.15s ease-out, left 0.15s ease-out;
+  transition: right 0.15s ease-out, left 0.15s ease-out,
+    visibility 0.15s ease-out, top 0.15s ease-out;
 
   &.show-calendar {
     display: flex;
@@ -188,6 +181,10 @@
   &:not(.show-calendar) {
     min-width: auto;
     width: auto;
+
+    .drp-ranges {
+      width: 100%;
+    }
   }
 
   .drp-content {
@@ -220,6 +217,7 @@
   &.drop-up {
     margin-top: -0.4375rem;
     top: auto;
+    bottom: 100%;
   }
 
   .drp-calendar-container,
@@ -344,7 +342,7 @@
   }
 
   .month-header {
-    text-align: center;
+    // text-align: center;
     margin-bottom: 0.5rem;
     display: flex;
     justify-content: space-between;
@@ -398,6 +396,140 @@
     border-radius: 0.25rem;
     padding: 0.125rem 0.25rem;
   }
+
+  /* Calendar Time Styling */
+  .calendar-time {
+    // text-align: center;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--small-font-size);
+    border-top: 1px solid var(--color-border-light);
+
+    select {
+      padding: 0.125rem;
+      margin: 0 0.1875rem;
+      font-size: var(--small-font-size);
+    }
+
+    .separator {
+      padding: 0 0.3125rem;
+    }
+  }
+
+  /* Custom Select Styles - UPDATED */
+  .drp-custom-select {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 1.75rem;
+    min-width: 3.5rem;
+    cursor: pointer;
+    font-size: var(--small-font-size);
+    border: 0.0625rem solid var(--color-border-light);
+    border-radius: 0.25rem;
+    background-color: var(--color-bg);
+  }
+
+  .drp-custom-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.125rem var(--color-focus-shadow);
+  }
+
+  /* Updated arrow styling for better alignment */
+  .drp-custom-select-selected {
+    width: 100%;
+    padding: 0.125rem 0.5rem;
+    // text-align: center;
+    position: relative;
+  }
+
+  /* Replace background image with CSS triangle */
+  .drp-custom-select-selected::after {
+    content: '';
+    position: absolute;
+    // right: 0.5rem;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 0.3125rem solid transparent;
+    border-right: 0.3125rem solid transparent;
+    border-top: 0.3125rem solid var(--color-text-muted);
+    pointer-events: none;
+  }
+
+  /* Add hover effect */
+  .drp-custom-select:hover .drp-custom-select-selected::after {
+    border-top-color: var(--color-text);
+  }
+
+  /* Custom widths for different select types */
+  .drp-custom-select.hourselect,
+  .drp-custom-select.minuteselect,
+  .drp-custom-select.secondselect {
+    min-width: 2.75rem;
+    // text-align: center;
+  }
+
+  .drp-custom-select.ampmselect {
+    min-width: 3.25rem;
+  }
+
+  .drp-custom-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    min-width: 100%;
+    max-height: 9.375rem; /* 150px */
+    overflow-y: auto;
+    margin-top: 0.125rem;
+    background-color: var(--color-bg);
+    border: 0.0625rem solid var(--color-border);
+    border-radius: 0.25rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+  }
+
+  .drp-custom-select-option {
+    padding: 0.25rem 0.5rem;
+    padding-right: 1.5rem;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .drp-custom-select-option:hover:not(.disabled) {
+    background-color: var(--color-bg-hover);
+  }
+
+  .drp-custom-select-option.highlighted {
+    background-color: var(--color-bg-hover);
+  }
+
+  .drp-custom-select-option.selected {
+    font-weight: 500;
+    background-color: rgba(51, 122, 183, 0.1);
+  }
+
+  .drp-custom-select-option.disabled {
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
+  /* Adjust the calendar time container to accommodate custom selects */
+  .calendar-time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+  /* End of Custom Select Styles */
 
   td.available:hover,
   th.available:hover {
@@ -482,27 +614,6 @@
 
     .drp-calendar td {
       cursor: pointer;
-    }
-  }
-
-  .calendar-time {
-    text-align: center;
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--small-font-size);
-    border-top: 1px solid var(--color-border-light);
-
-    select {
-      padding: 0.125rem;
-      margin: 0 0.1875rem;
-      font-size: var(--small-font-size);
-    }
-
-    .separator {
-      padding: 0 0.3125rem;
     }
   }
 
