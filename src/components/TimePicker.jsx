@@ -1,6 +1,6 @@
 /*eslint-disable*/
-import React, { memo } from 'react';
-import moment from 'moment';
+import React, { memo, useState, useRef, useEffect } from 'react';
+import CustomSelect from './CustomSelect';
 
 const TimePicker = ({
   selected,
@@ -51,13 +51,13 @@ const TimePicker = ({
     onChange(newDate);
   };
 
-  const renderHourOptions = () => {
-    const hours = [];
+  // Prepare options for hour select
+  const hourOptions = (() => {
+    const options = [];
     const start = timePicker24Hour ? 0 : 1;
     const end = timePicker24Hour ? 23 : 12;
 
     for (let i = start; i <= end; i++) {
-      const value = i;
       let hour = i;
 
       // For 12-hour format, map the hours correctly
@@ -74,18 +74,19 @@ const TimePicker = ({
         (minDate && time.minute(59).isBefore(minDate)) ||
         (maxDate && time.minute(0).isAfter(maxDate));
 
-      hours.push(
-        <option key={i} value={value} disabled={disabled}>
-          {value}
-        </option>
-      );
+      options.push({
+        value: i,
+        label: i.toString(),
+        disabled,
+      });
     }
 
-    return hours;
-  };
+    return options;
+  })();
 
-  const renderMinuteOptions = () => {
-    const minutes = [];
+  // Prepare options for minute select
+  const minuteOptions = (() => {
+    const options = [];
     const increment = timePickerIncrement || 5;
 
     for (let i = 0; i < 60; i += increment) {
@@ -95,19 +96,21 @@ const TimePicker = ({
         (minDate && time.second(59).isBefore(minDate)) ||
         (maxDate && time.second(0).isAfter(maxDate));
 
-      minutes.push(
-        <option key={i} value={i} disabled={disabled}>
-          {padded}
-        </option>
-      );
+      options.push({
+        value: i,
+        label: padded,
+        disabled,
+      });
     }
 
-    return minutes;
-  };
+    return options;
+  })();
 
-  const renderSecondOptions = () => {
-    const seconds = [];
+  // Prepare options for second select
+  const secondOptions = (() => {
+    if (!timePickerSeconds) return [];
 
+    const options = [];
     for (let i = 0; i < 60; i++) {
       const padded = i < 10 ? `0${i}` : `${i}`;
       const time = selected.clone().second(i);
@@ -115,62 +118,63 @@ const TimePicker = ({
         (minDate && time.isBefore(minDate)) ||
         (maxDate && time.isAfter(maxDate));
 
-      seconds.push(
-        <option key={i} value={i} disabled={disabled}>
-          {padded}
-        </option>
-      );
+      options.push({
+        value: i,
+        label: padded,
+        disabled,
+      });
     }
 
-    return seconds;
-  };
+    return options;
+  })();
+
+  // Prepare options for AM/PM select
+  const ampmOptions = [
+    { value: 'AM', label: 'AM', disabled: false },
+    { value: 'PM', label: 'PM', disabled: false },
+  ];
 
   return (
     <div className="calendar-time">
-      <select
+      <CustomSelect
         className="hourselect"
         value={timePicker24Hour ? selected.hour() : selected.format('h')}
+        options={hourOptions}
         onChange={handleHourChange}
-        aria-label="Hour"
-      >
-        {renderHourOptions()}
-      </select>
+        ariaLabel="Hour"
+      />
 
       <span className="separator">:</span>
 
-      <select
+      <CustomSelect
         className="minuteselect"
         value={selected.minute()}
+        options={minuteOptions}
         onChange={handleMinuteChange}
-        aria-label="Minute"
-      >
-        {renderMinuteOptions()}
-      </select>
+        ariaLabel="Minute"
+      />
 
       {timePickerSeconds && (
         <>
           <span className="separator">:</span>
-          <select
+          <CustomSelect
             className="secondselect"
             value={selected.second()}
+            options={secondOptions}
             onChange={handleSecondChange}
-            aria-label="Second"
-          >
-            {renderSecondOptions()}
-          </select>
+            ariaLabel="Second"
+          />
         </>
       )}
 
       {!timePicker24Hour && (
-        <select
+        <CustomSelect
           className="ampmselect"
           value={selected.format('A')}
+          options={ampmOptions}
           onChange={handleAmPmChange}
-          aria-label="AM/PM"
-        >
-          <option value="AM">AM</option>
-          <option value="PM">PM</option>
-        </select>
+          ariaLabel="AM/PM"
+        />
       )}
     </div>
   );
