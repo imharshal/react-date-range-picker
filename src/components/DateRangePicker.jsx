@@ -452,6 +452,30 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
       setIsPositioned(false);
     }
   }, [isOpen, options.opens, options.drops, chosenLabel, showCalendars]);
+
+  // Method to adjust tooltip position on hover
+  const adjustTooltipPosition = useCallback(() => {
+    const tooltips = displayRef.current?.querySelectorAll('.drp-tooltip');
+
+    tooltips.forEach((tooltip) => {
+      const rect = tooltip.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+
+      // Remove any existing edge classes
+      tooltip.classList.remove('edge-left', 'edge-right');
+
+      // Check if the tooltip is near the left edge
+      if (rect.left < 0) {
+        tooltip.classList.add('edge-left');
+      }
+
+      // Check if the tooltip is near the right edge
+      if (rect.right > viewportWidth) {
+        tooltip.classList.add('edge-right');
+      }
+    });
+  }, [displayRef]);
+
   const handleDateClick = useCallback(
     (date) => {
       const customRangeLabel =
@@ -671,14 +695,22 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
   return (
     <>
       <div
+        {...options.mainContainerAttr}
         ref={displayRef}
-        className={`drp-main-container ${props.disabled ? 'drp-disabled' : ''}`}
+        className={`drp-main-container ${options.mainContainerClassName} ${
+          props.disabled ? 'drp-disabled' : ''
+        }`}
+        onMouseEnter={adjustTooltipPosition}
         style={themeStyles}
       >
         {options.showInputField ? (
-          <div className={`drp-input ${options.inputContainerClassName ?? ''}`}>
+          <div
+            {...options.inputContainerAttr}
+            className={`drp-input ${options.inputContainerClassName ?? ''}`}
+          >
             <div className="drp-icon-left">{options.icon}</div>
             <input
+              {...options.inputAttr}
               type="text"
               ref={inputRef}
               style={{ border: 'none', outline: 'none', ...options.inputStyle }}
@@ -698,6 +730,7 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
           </div>
         ) : (
           <div
+            {...options.labelContainerAttr}
             className={`entry-label ${options.labelContainerClassName ?? ''}`}
             onClick={toggle}
           >
@@ -709,6 +742,29 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
                 ? originalSelectedRangeLabel
                 : chosenLabel}
             </span>
+          </div>
+        )}
+        {options.showTooltip && !isOpen && (
+          <div
+            {...options.tooltip?.containerAttr}
+            className={`drp-tooltip ${
+              options.tooltip?.containerClassName ?? ''
+            }`}
+          >
+            {options.tooltip?.showSelectedRange && (
+              <div className={`drp-icon-left ${options.iconClassName ?? ''}`}>
+                {options.icon}
+              </div>
+            )}
+            <div
+              className={`drp-tooltip-content ${
+                options.tooltip?.contentClassName ?? ''
+              }`}
+            >
+              {options.tooltip?.content || options.tooltip?.showSelectedRange
+                ? selectedRangeLabel
+                : props.placeholder}
+            </div>
           </div>
         )}
       </div>
