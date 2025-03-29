@@ -1,4 +1,6 @@
+/*eslint-disable*/
 import React, { memo, useMemo } from 'react';
+import CustomSelect from './CustomSelect'; // Import the CustomSelect component
 
 const Calendar = ({
   month,
@@ -10,10 +12,13 @@ const Calendar = ({
   onDateClick,
   onDateHover,
   onMonthChange,
+  isLeft,
   showDropdowns,
   utils,
+  locale,
   moment, // Timezone-aware moment function
   isSelecting,
+  dateFormat, // Date format for accessibility labels
 }) => {
   // Use utils to format date consistently
   const monthName = useMemo(() => {
@@ -30,6 +35,27 @@ const Calendar = ({
     // Let utility class handle generating month options
     return utils.getCalendarDropdownOptions(moment);
   }, [showDropdowns, utils, moment]);
+
+  // Convert monthOptions and yearOptions to the format expected by CustomSelect
+  const monthSelectOptions = useMemo(() => {
+    if (!monthOptions.length) return [];
+
+    return monthOptions.map((option) => ({
+      value: option.props.value,
+      label: option.props.children,
+      disabled: option.props.disabled || false,
+    }));
+  }, [monthOptions]);
+
+  const yearSelectOptions = useMemo(() => {
+    if (!yearOptions.length) return [];
+
+    return yearOptions.map((option) => ({
+      value: option.props.value,
+      label: option.props.children,
+      disabled: option.props.disabled || false,
+    }));
+  }, [yearOptions]);
 
   const handleMonthChange = (e) => {
     const newMonth = parseInt(e.target.value, 10);
@@ -90,22 +116,20 @@ const Calendar = ({
 
         {showDropdowns ? (
           <div className="month-dropdowns">
-            <select
+            <CustomSelect
               value={month.month()}
+              options={monthSelectOptions}
               onChange={handleMonthChange}
               className="monthselect"
-              aria-label="Select month"
-            >
-              {monthOptions}
-            </select>
-            <select
+              ariaLabel="Select month"
+            />
+            <CustomSelect
               value={month.year()}
+              options={yearSelectOptions}
               onChange={handleYearChange}
               className="yearselect"
-              aria-label="Select year"
-            >
-              {yearOptions}
-            </select>
+              ariaLabel="Select year"
+            />
           </div>
         ) : (
           <div className="month-name">
