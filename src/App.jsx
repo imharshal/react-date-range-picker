@@ -31,6 +31,10 @@ function App() {
       linkedCalendars: false,
       autoApply: false,
       showRanges: true,
+      showTooltip: true,
+      tooltip: {
+        showSelectedRange: true,
+      },
       opens: 'left',
       drops: 'down',
       locale: {
@@ -54,7 +58,7 @@ function App() {
   }, []);
 
   return (
-    <>
+    <div style={{ height: '400vh' }}>
       <div style={{ width: '100%' }}>
         <DateRangePicker
           // disabled
@@ -66,8 +70,37 @@ function App() {
           placeholder="Select date range"
           timeZone="America/New_York"
         />
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'end',
+            alignItems: 'end',
+            height: '100vh',
+          }}
+        >
+          <DateRangePicker
+            // disabled
+            options={options}
+            ranges={ranges}
+            onApply={handleApply}
+            startDate={dateRange?.startDate}
+            endDate={dateRange?.endDate}
+            placeholder="Select date range"
+            timeZone="America/New_York"
+          />
+        </div>
+        <DateRangePicker
+          // disabled
+          options={options}
+          ranges={ranges}
+          onApply={handleApply}
+          startDate={dateRange?.startDate}
+          endDate={dateRange?.endDate}
+          placeholder="Select date range"
+          timeZone="America/New_York"
+        />
       </div>
-    </>
+    </div>
   );
 }
 
