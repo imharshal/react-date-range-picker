@@ -4,3 +4,8 @@ node_modules
 .gitignore
 vite.config.js
 eslint.config.js
+
+# Storybook files
+storybook-static
+.storybook
+*storybook.log

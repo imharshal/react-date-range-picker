@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Storybook files
+storybook-static
+.storybook
+*storybook.log
