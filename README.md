@@ -22,7 +22,8 @@ A flexible, feature-rich date range picker component for React applications with
 12. [Dependencies](#dependencies)
 13. [Troubleshooting](#troubleshooting)
 14. [Contributing](#contributing)
-15. [License](#license)
+15. [Credits](#credits)
+16. [License](#license)
 
 ---
 
@@ -464,6 +465,15 @@ Contributions are welcome! Please feel free to submit a Pull Request.
    git push origin feature/amazing-feature
    ```
 5. Open a Pull Request.
+
+---
+
+## Credits
+
+This library is inspired by:
+
+- [Date Range Picker by Dan Grossman](https://www.daterangepicker.com/)
+- [GitHub Repository: dangrossman/daterangepicker](https://github.com/dangrossman/daterangepicker)
 
 ---
 
