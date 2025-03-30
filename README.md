@@ -1,5 +1,7 @@
 # @imharshal/react-date-range-picker
 
+[Link to Live Demo (Storybook)](https://imharshal.github.io/react-date-range-picker/storybook)
+
 A flexible, feature-rich date range picker component for React applications with modern design and extensive configuration options. This library supports single and range date selection, time pickers, custom themes, and more.
 
 [![npm version](https://img.shields.io/npm/v/@imharshal/react-date-range-picker)](https://www.npmjs.com/package/@imharshal/react-date-range-picker) [![npm downloads](https://img.shields.io/npm/dm/@imharshal/react-date-range-picker)](https://www.npmjs.com/package/@imharshal/react-date-range-picker) [![license](https://img.shields.io/npm/l/@imharshal/react-date-range-picker)](https://www.npmjs.com/package/@imharshal/react-date-range-picker)
