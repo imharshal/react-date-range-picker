@@ -5,6 +5,8 @@ import React, {
   useMemo,
   memo,
   useCallback,
+  forwardRef,
+  useImperativeHandle,
 } from 'react';
 import { createPortal } from 'react-dom';
 import moment from 'moment-timezone';
@@ -15,8 +17,9 @@ import DateRangePickerUtils from '../utils/DateRangePickerUtils';
 import ThemeHandler from '../utils/ThemeHandler';
 import '../styles/styles.scss';
 
-const DateRangePicker = ({ onApply, onCancel, ...props }) => {
-  const { theme = 'default', customTheme = {} } = props; // Default to 'default' theme if not provided
+// Wrap the component with forwardRef to allow ref forwarding
+const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
+  const { theme = 'default', customTheme = {} } = props; // Default theme
 
   // Memoize timeZone to prevent recalculation
   const timeZone = useMemo(
@@ -243,7 +246,8 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
         isOpen &&
         containerRef.current &&
         !containerRef.current.contains(e.target) &&
-        e.target !== inputRef.current
+        e.target !== inputRef.current &&
+        !displayRef.current?.contains(e.target)
       ) {
         setIsOpen(false);
       }
@@ -747,6 +751,45 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
     options.locale?.customRangeLabel,
   ]);
 
+  // Expose refs to parent component via the forwarded ref
+  useImperativeHandle(
+    ref,
+    () => ({
+      // Expose container element (input/trigger)
+      container: displayRef.current,
+      // Expose dropdown element ref
+      dropdown: containerRef.current,
+      // Expose Input element ref
+      input: inputRef.current,
+      // Expose useful methods
+      isOpen: () => isOpen,
+      open: () => setIsOpen(true),
+      close: () => setIsOpen(false),
+      toggle: () => setIsOpen((prev) => !prev),
+
+      // Expose date values
+      getStartDate: () => startDate,
+      getEndDate: () => endDate,
+
+      // Expose date format and moment object
+      getDisplayFormat: () => getDisplayFormat(),
+      getMoment: () => getMoment(),
+
+      // Expose setters
+      setStartDate: (date) => handleSetStartDate(date),
+      setEndDate: (date) => handleSetEndDate(date),
+    }),
+    [
+      isOpen,
+      startDate,
+      endDate,
+      getMoment,
+      getDisplayFormat,
+      handleSetStartDate,
+      handleSetEndDate,
+    ]
+  );
+
   return (
     <>
       <div
@@ -1014,6 +1057,9 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
         )}
     </>
   );
-};
+});
+
+// Add display name for debugging
+DateRangePicker.displayName = 'DateRangePicker';
 
 export default memo(DateRangePicker);
