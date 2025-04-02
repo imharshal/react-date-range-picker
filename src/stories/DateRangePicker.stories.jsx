@@ -1,6 +1,6 @@
 // DateRangePicker.stories.jsx
 import React, { useState } from 'react';
-import { DateRangePicker } from '@imharshal/react-date-range-picker';
+import DateRangePicker from '../components/DateRangePicker';
 import moment from 'moment-timezone';
 import {
   FaCalendarAlt,
@@ -1536,6 +1536,156 @@ function ComprehensiveExample() {
   );
 }`
       ),
+    },
+  },
+};
+
+// 13. TOOLTIP EXAMPLE
+export const TooltipExample = Template.bind({});
+TooltipExample.args = {
+  placeholder: 'Hover to see tooltip',
+  options: {
+    showTooltip: true,
+    tooltip: {
+      show: true,
+      showSelectedRange: true,
+      containerClassName: 'custom-tooltip-container',
+      contentClassName: 'custom-tooltip-content',
+    },
+  },
+  showSelected: true,
+};
+TooltipExample.parameters = {
+  docs: {
+    description: {
+      story:
+        'This example demonstrates the tooltip feature. The tooltip provides additional context or information when hovering over the input field.',
+    },
+    source: {
+      code: createSourceCode(
+        'Tooltip Example',
+        'Demonstrates the tooltip feature for additional context',
+        `import React from 'react';
+import DateRangePicker from '@imharshal/react-date-range-picker';
+
+function TooltipExample() {
+  return (
+    <DateRangePicker
+      options={{
+        showTooltip: true,
+        tooltip: {
+          show: true,
+          showSelectedRange: true,
+          containerClassName: 'custom-tooltip-container',
+          contentClassName: 'custom-tooltip-content',
+        },
+      }}
+      placeholder="Hover to see tooltip"
+    />
+  );
+}`
+      ),
+    },
+  },
+};
+
+// 14. PROGRAMMATIC CONTROL WITH REF
+export const ProgrammaticControl = () => {
+  const pickerRef = React.useRef(null);
+
+  const openPicker = () => {
+    pickerRef.current?.open();
+  };
+
+  const closePicker = () => {
+    pickerRef.current?.close();
+  };
+
+  const logSelectedDates = () => {
+    const startDate = pickerRef.current?.getStartDate();
+    const endDate = pickerRef.current?.getEndDate();
+    alert(
+      `Start Date: ${startDate?.format(
+        'YYYY-MM-DD'
+      )}\nEnd Date: ${endDate?.format('YYYY-MM-DD')}`
+    );
+  };
+
+  return (
+    <div className="story-container">
+      <div className="programmatic-control-buttons">
+        <button onClick={openPicker} className="control-btn">
+          Open Picker
+        </button>
+        <button onClick={closePicker} className="control-btn">
+          Close Picker
+        </button>
+        <button onClick={logSelectedDates} className="control-btn">
+          Log Selected Dates
+        </button>
+      </div>
+      <DateRangePicker
+        ref={pickerRef}
+        placeholder="Select a date range"
+        options={{
+          showTooltip: true,
+          tooltip: {
+            show: true,
+            content: 'Programmatically controlled picker',
+          },
+        }}
+      />
+    </div>
+  );
+};
+ProgrammaticControl.parameters = {
+  docs: {
+    description: {
+      story:
+        'This example demonstrates programmatic control of the date picker using `useRef`. You can open, close, or log selected dates programmatically.',
+    },
+    source: {
+      code: `import React, { useRef } from 'react';
+import DateRangePicker from '@imharshal/react-date-range-picker';
+
+function ProgrammaticControlExample() {
+  const pickerRef = useRef();
+
+  const openPicker = () => {
+    pickerRef.current?.open();
+  };
+
+  const closePicker = () => {
+    pickerRef.current?.close();
+  };
+
+  const logSelectedDates = () => {
+    const startDate = pickerRef.current?.getStartDate();
+    const endDate = pickerRef.current?.getEndDate();
+    alert(\`Start Date: \${startDate?.format('YYYY-MM-DD')}\\nEnd Date: \${endDate?.format('YYYY-MM-DD')}\`);
+  };
+
+  return (
+    <div>
+      <button onClick={openPicker}>Open Picker</button>
+      <button onClick={closePicker}>Close Picker</button>
+      <button onClick={logSelectedDates}>Log Selected Dates</button>
+      <DateRangePicker
+        ref={pickerRef}
+        placeholder="Select a date range"
+        options={{
+          showTooltip: true,
+          tooltip: {
+            show: true,
+            content: 'Programmatically controlled picker',
+          },
+        }}
+      />
+    </div>
+  );
+}
+
+export default ProgrammaticControlExample;`,
     },
   },
 };
