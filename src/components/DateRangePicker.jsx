@@ -332,6 +332,84 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
     [props.disabled]
   );
 
+  // Enhanced tooltip positioning - UPDATED
+  const adjustTooltipPosition = useCallback(() => {
+    // Use setTimeout to ensure tooltip is rendered in DOM
+    setTimeout(() => {
+      const tooltips = displayRef.current?.querySelectorAll('.drp-tooltip');
+      if (!tooltips?.length) return;
+
+      tooltips.forEach((tooltip) => {
+        // Get parent element (trigger element) position
+        const parentRect = displayRef.current.getBoundingClientRect();
+        const tooltipRect = tooltip.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+
+        // Reset any inline styles from previous positioning
+        tooltip.style.removeProperty('left');
+        tooltip.style.removeProperty('right');
+        tooltip.style.removeProperty('transform');
+
+        // Remove edge classes
+        tooltip.classList.remove('edge-left', 'edge-right');
+
+        // Default center positioning
+        let positionStyle = {
+          left: '50%',
+          transform: 'translateX(-50%)',
+        };
+
+        // Calculate boundaries
+        const tooltipLeft =
+          parentRect.left + parentRect.width / 2 - tooltipRect.width / 2;
+        const tooltipRight = tooltipLeft + tooltipRect.width;
+
+        // Check for edge collisions
+        if (tooltipLeft < 10) {
+          // Handle left edge collision
+          tooltip.classList.add('edge-left');
+          positionStyle = {
+            left: '0',
+            transform: 'translateX(0)',
+          };
+        } else if (tooltipRight > viewportWidth - 10) {
+          // Handle right edge collision
+          tooltip.classList.add('edge-right');
+          positionStyle = {
+            right: '0',
+            left: 'auto',
+            transform: 'translateX(0)',
+          };
+        }
+
+        // Apply calculated positioning
+        Object.assign(tooltip.style, positionStyle);
+      });
+    }, 10); // Small delay to ensure tooltip is in DOM
+  }, []);
+
+  // Effect for window resize - ADDED
+  useEffect(() => {
+    const handleResize = () => {
+      if (!isOpen) adjustTooltipPosition();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [adjustTooltipPosition, isOpen]);
+
+  // Effect to position tooltip on first appearance - ADDED
+  useEffect(() => {
+    if (!isOpen && (options.showTooltip || options.tooltip?.show)) {
+      adjustTooltipPosition();
+    }
+  }, [
+    isOpen,
+    options.showTooltip,
+    options.tooltip?.show,
+    adjustTooltipPosition,
+  ]);
+
   // Effect to handle position adjustments for overlay drp-main
   useEffect(() => {
     if (isOpen && containerRef.current && displayRef.current) {
@@ -452,29 +530,6 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
       setIsPositioned(false);
     }
   }, [isOpen, options.opens, options.drops, chosenLabel, showCalendars]);
-
-  // Method to adjust tooltip position on hover
-  const adjustTooltipPosition = useCallback(() => {
-    const tooltips = displayRef.current?.querySelectorAll('.drp-tooltip');
-
-    tooltips.forEach((tooltip) => {
-      const rect = tooltip.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-
-      // Remove any existing edge classes
-      tooltip.classList.remove('edge-left', 'edge-right');
-
-      // Check if the tooltip is near the left edge
-      if (rect.left < 0) {
-        tooltip.classList.add('edge-left');
-      }
-
-      // Check if the tooltip is near the right edge
-      if (rect.right > viewportWidth) {
-        tooltip.classList.add('edge-right');
-      }
-    });
-  }, [displayRef]);
 
   const handleDateClick = useCallback(
     (date) => {
@@ -750,6 +805,13 @@ const DateRangePicker = ({ onApply, onCancel, ...props }) => {
             className={`drp-tooltip ${
               options.tooltip?.containerClassName ?? ''
             }`}
+            style={{
+              position: 'absolute',
+              zIndex: 1000,
+              top: '100%',
+              marginTop: '5px',
+              transition: 'opacity 0.2s, transform 0.2s',
+            }}
           >
             {options.tooltip?.showSelectedRange && (
               <div className={`drp-icon-left ${options.iconClassName ?? ''}`}>
