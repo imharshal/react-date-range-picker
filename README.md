@@ -1,6 +1,6 @@
 # @imharshal/react-date-range-picker
 
-[Link to Live Demo (Storybook)](https://imharshal.github.io/react-date-range-picker/storybook)
+[Link to Live Demo (Storybook)](https://imharshal.github.io/react-date-range-picker)
 
 A flexible, feature-rich date range picker component for React applications with modern design, extensive configuration options, and timezone customizations. This library supports single and range date selection, time pickers, custom themes, and more.
 
@@ -10,22 +10,47 @@ A flexible, feature-rich date range picker component for React applications with
 
 ## Table of Contents
 
-1. [Features](#features)
-2. [Installation](#installation)
-3. [Basic Usage](#basic-usage)
-4. [TypeScript Support](#typescript-support)
-5. [Props and Options](#props-and-options)
-6. [Advanced Examples](#advanced-examples)
-7. [Predefined Ranges](#predefined-ranges)
-8. [Localization](#localization)
-9. [Events](#events)
-10. [Styling and Customization](#styling-and-customization)
-11. [Browser Support](#browser-support)
-12. [Dependencies](#dependencies)
-13. [Troubleshooting](#troubleshooting)
-14. [Contributing](#contributing)
-15. [Credits](#credits)
-16. [License](#license)
+- [@imharshal/react-date-range-picker](#imharshalreact-date-range-picker)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Installation](#installation)
+  - [Basic Usage](#basic-usage)
+  - [TypeScript Support](#typescript-support)
+    - [`DateRangePickerProps`](#daterangepickerprops)
+    - [`DateRangePickerOptions`](#daterangepickeroptions)
+  - [Props and Options](#props-and-options)
+    - [Core Props](#core-props)
+    - [Options (via `options` prop)](#options-via-options-prop)
+    - [Tooltip Options (via `options.tooltip`)](#tooltip-options-via-optionstooltip)
+    - [Customization Props](#customization-props)
+  - [Advanced Examples](#advanced-examples)
+    - [Single Date Picker](#single-date-picker)
+    - [Time Picker](#time-picker)
+    - [Custom Ranges](#custom-ranges)
+    - [Custom Theme](#custom-theme)
+    - [Disabled Picker](#disabled-picker)
+    - [Localization Example](#localization-example)
+    - [Tooltip Example](#tooltip-example)
+    - [Programmatic Control with Ref Forwarding](#programmatic-control-with-ref-forwarding)
+    - [Available Methods via Ref](#available-methods-via-ref)
+  - [Predefined Ranges](#predefined-ranges)
+  - [Localization](#localization)
+  - [Events](#events)
+    - [`onApply`](#onapply)
+    - [`onCancel`](#oncancel)
+  - [Styling and Customization](#styling-and-customization)
+  - [Browser Support](#browser-support)
+  - [Dependencies](#dependencies)
+  - [Troubleshooting](#troubleshooting)
+    - [Issue: The picker does not open](#issue-the-picker-does-not-open)
+    - [Issue: Incorrect date format](#issue-incorrect-date-format)
+    - [Issue: Time picker not working](#issue-time-picker-not-working)
+    - [Issue: Predefined ranges not showing](#issue-predefined-ranges-not-showing)
+    - [Issue: Dates not updating in parent component](#issue-dates-not-updating-in-parent-component)
+    - [Issue: Calendar doesn't open/close properly](#issue-calendar-doesnt-openclose-properly)
+  - [Contributing](#contributing)
+  - [Credits](#credits)
+  - [License](#license)
 
 ---
 
@@ -43,6 +68,8 @@ A flexible, feature-rich date range picker component for React applications with
 - **Mobile Friendly**: Responsive design works on all devices
 - **Keyboard Navigation**: Accessible keyboard controls
 - **Extensive Customization**: Configure almost any aspect of appearance and behavior
+- **Programmatic Control**: Ref forwarding for controlling the picker programmatically
+- **Tooltip Support**: Configurable tooltips for additional context
 
 ---
 
@@ -66,7 +93,7 @@ yarn add @imharshal/react-date-range-picker
 
 ```jsx
 import React from 'react';
-import DateRangePicker from './src/components/DateRangePicker';
+import DateRangePicker from '@imharshal/react-date-range-picker';
 
 const App = () => {
   const handleApply = ({ startDate, endDate, chosenLabel }) => {
@@ -241,6 +268,17 @@ These interfaces provide a comprehensive overview of all the props and options s
 | `opens`               | String  | `'right'`         | Position of the picker (`'left'`, `'right'`, `'center'`).               |
 | `drops`               | String  | `'auto'`          | Drop direction (`'up'`, `'down'`, `'auto'`).                            |
 
+### Tooltip Options (via `options.tooltip`)
+
+| Option               | Type      | Default | Description                                           |
+| -------------------- | --------- | ------- | ----------------------------------------------------- |
+| `show`               | Boolean   | `false` | Whether to show the tooltip.                          |
+| `showSelectedRange`  | Boolean   | `false` | Whether to display the selected range in the tooltip. |
+| `content`            | ReactNode | `null`  | Custom content to display in the tooltip.             |
+| `containerClassName` | String    | `''`    | Custom class for the tooltip container.               |
+| `contentClassName`   | String    | `''`    | Custom class for the tooltip content.                 |
+| `containerAttr`      | Object    | `{}`    | Additional attributes for the tooltip container.      |
+
 ### Customization Props
 
 | Prop                      | Type   | Default     | Description                                        |
@@ -321,6 +359,76 @@ These interfaces provide a comprehensive overview of all the props and options s
   }}
 />
 ```
+
+### Tooltip Example
+
+```jsx
+<DateRangePicker
+  options={{
+    showTooltip: true,
+    tooltip: {
+      show: true,
+      showSelectedRange: true,
+      content: 'Select a date range',
+      containerClassName: 'custom-tooltip-container',
+      contentClassName: 'custom-tooltip-content',
+    },
+  }}
+  placeholder="Hover to see tooltip"
+/>
+```
+
+### Programmatic Control with Ref Forwarding
+
+The `DateRangePicker` component supports ref forwarding, allowing you to programmatically control its behavior. Here's an example:
+
+```jsx
+import React, { useRef } from 'react';
+import DateRangePicker from '@imharshal/react-date-range-picker';
+
+const App = () => {
+  const pickerRef = useRef();
+
+  const openPicker = () => {
+    pickerRef.current.open();
+  };
+
+  const closePicker = () => {
+    pickerRef.current.close();
+  };
+
+  const logSelectedDates = () => {
+    console.log('Start Date:', pickerRef.current.getStartDate());
+    console.log('End Date:', pickerRef.current.getEndDate());
+  };
+
+  return (
+    <div>
+      <button onClick={openPicker}>Open Picker</button>
+      <button onClick={closePicker}>Close Picker</button>
+      <button onClick={logSelectedDates}>Log Selected Dates</button>
+      <DateRangePicker ref={pickerRef} placeholder="Select a date range" />
+    </div>
+  );
+};
+
+export default App;
+```
+
+### Available Methods via Ref
+
+| Method               | Description                                     |
+| -------------------- | ----------------------------------------------- |
+| `open()`             | Opens the date range picker.                    |
+| `close()`            | Closes the date range picker.                   |
+| `toggle()`           | Toggles the open/close state of the picker.     |
+| `isOpen()`           | Returns whether the picker is currently open.   |
+| `getStartDate()`     | Returns the currently selected start date.      |
+| `getEndDate()`       | Returns the currently selected end date.        |
+| `getDisplayFormat()` | Returns the display format for the dates.       |
+| `getMoment()`        | Returns the moment instance used by the picker. |
+| `setStartDate(date)` | Sets the start date programmatically.           |
+| `setEndDate(date)`   | Sets the end date programmatically.             |
 
 ---
 
