@@ -282,6 +282,8 @@ export const CustomRanges = (args) => {
 
   // Define custom ranges
   const customRanges = {
+    'Last Minute': [moment().subtract(1, 'minutes'), moment()],
+    'Last 30 Minute': [moment().subtract(30, 'minutes'), moment()],
     Today: [moment(), moment()],
     Yesterday: [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
     'Last 7 Days': [moment().subtract(6, 'days'), moment()],
@@ -305,6 +307,10 @@ export const CustomRanges = (args) => {
         onApply={handleApply}
         ranges={customRanges}
         options={{
+          locale: {
+            format: 'MMMM D, YYYY HH:mm:ss',
+          },
+          autoUpdateRanges: true,
           alwaysShowCalendars: true,
           showCustomRangeLabel: true,
           icon: <FaCalendarDay />,
@@ -354,6 +360,8 @@ function CustomRangesExample() {
 
   // Define custom ranges
   const customRanges = {
+    'Last Minute': [moment().subtract(1, 'minutes'), moment()],
+    'Last 30 Minute': [moment().subtract(30, 'minutes'), moment()],
     'Today': [moment(), moment()],
     'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
     'Last 7 Days': [moment().subtract(6, 'days'), moment()],
@@ -396,6 +404,10 @@ function CustomRangesExample() {
       onApply={handleApply}
       ranges={customRanges}
       options={{
+        locale: {
+          format: 'MMMM D, YYYY HH:mm:ss',
+        },
+        autoUpdateRanges: true,
         alwaysShowCalendars: true,
         showCustomRangeLabel: true,
         icon: <FaCalendarDay />
