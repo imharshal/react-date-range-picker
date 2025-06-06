@@ -695,21 +695,23 @@ const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
       let matched = false;
       const displayFormat = getDisplayFormat();
 
-      Object.entries(ranges).forEach(([label, [rangeStart, rangeEnd]]) => {
-        if (
-          startDate.format(displayFormat) ===
-            rangeStart.format(displayFormat) &&
-          endDate.format(displayFormat) === rangeEnd.format(displayFormat)
-        ) {
-          setChosenLabel(label);
-          matched = true;
-        }
-      });
+      if (!options.autoUpdateRanges) {
+        Object.entries(ranges).forEach(([label, [rangeStart, rangeEnd]]) => {
+          if (
+            startDate.format(displayFormat) ===
+              rangeStart.format(displayFormat) &&
+            endDate.format(displayFormat) === rangeEnd.format(displayFormat)
+          ) {
+            setChosenLabel(label);
+            matched = true;
+          }
+        });
 
-      if (!matched) {
-        setChosenLabel(options.locale?.customRangeLabel || 'Custom Range');
-        if (!options.alwaysShowCalendars) {
-          setShowCalendars(true);
+        if (!matched) {
+          setChosenLabel(options.locale?.customRangeLabel || 'Custom Range');
+          if (!options.alwaysShowCalendars) {
+            setShowCalendars(true);
+          }
         }
       }
     }
@@ -720,6 +722,7 @@ const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
     showRanges,
     options.singleDatePicker,
     options.locale?.customRangeLabel,
+    options.autoUpdateRanges,
     options.alwaysShowCalendars,
     getDisplayFormat,
   ]);
