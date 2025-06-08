@@ -164,7 +164,9 @@ const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
   const [endDate, setEndDate] = useState(() =>
     props.endDate ? getMoment(props.endDate) : getMoment()
   );
-  const [chosenLabel, setChosenLabel] = useState('');
+  const [chosenLabel, setChosenLabel] = useState(
+    props.options?.chosenLabel || ''
+  );
   const [showCalendars, setShowCalendars] = useState(
     options.alwaysShowCalendars
   );
@@ -270,6 +272,11 @@ const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
       setEndDate(finalEndDate);
       setUserStartDate(finalStartDate);
       setUserEndDate(finalEndDate);
+
+      // Use provided label or fall back to current chosenLabel
+      const finalChosenLabel = _chosenLabel || chosenLabel;
+      setChosenLabel(finalChosenLabel);
+
       setIsSelecting(false);
       setHoverDate(null);
 
@@ -277,13 +284,13 @@ const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
         onApply({
           startDate: finalStartDate,
           endDate: finalEndDate,
-          chosenLabel: _chosenLabel,
+          chosenLabel: finalChosenLabel,
         });
       }
 
       setIsOpen(false);
     },
-    [onApply]
+    [onApply, chosenLabel]
   );
 
   // Optimize date setting functions with useCallback
@@ -612,8 +619,13 @@ const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
         setShowCalendars(true);
       } else {
         if (start && end) {
-          setStartDate(getMoment(start));
-          setEndDate(getMoment(end));
+          // Set dates and ensure chosenLabel is updated immediately
+          const momentStart = getMoment(start);
+          const momentEnd = getMoment(end);
+          setStartDate(momentStart);
+          setEndDate(momentEnd);
+          setUserStartDate(momentStart);
+          setUserEndDate(momentEnd);
           setChosenLabel(label);
         }
         setIsOpen(false);
@@ -665,6 +677,27 @@ const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
       updateInputText();
     }
 
+    // Match initial dates to a predefined range and set chosenLabel accordingly
+    if (!chosenLabel && showRanges && !options.singleDatePicker && ranges) {
+      const displayFormat = getDisplayFormat();
+      let matched = false;
+
+      Object.entries(ranges).forEach(([label, [rangeStart, rangeEnd]]) => {
+        if (
+          startDate.format(displayFormat) ===
+            rangeStart.format(displayFormat) &&
+          endDate.format(displayFormat) === rangeEnd.format(displayFormat)
+        ) {
+          setChosenLabel(label);
+          matched = true;
+        }
+      });
+
+      if (!matched) {
+        setChosenLabel(options.locale?.customRangeLabel || 'Custom Range');
+      }
+    }
+
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
@@ -673,6 +706,14 @@ const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
     updateCalendars,
     options.autoUpdateInput,
     updateInputText,
+    chosenLabel,
+    showRanges,
+    options.singleDatePicker,
+    ranges,
+    startDate,
+    endDate,
+    getDisplayFormat,
+    options.locale?.customRangeLabel,
   ]);
 
   // Effect for updating input when dates change
@@ -691,6 +732,13 @@ const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
 
   // Effect to determine active range based on current date selection
   useEffect(() => {
+    // Prioritize explicitly provided chosenLabel from props (important for showInputField=false cases)
+    if (props.options?.chosenLabel) {
+      setChosenLabel(props.options.chosenLabel);
+      return;
+    }
+
+    // Otherwise match based on dates
     if (showRanges && !options.singleDatePicker && ranges) {
       let matched = false;
       const displayFormat = getDisplayFormat();
@@ -725,6 +773,7 @@ const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
     options.autoUpdateRanges,
     options.alwaysShowCalendars,
     getDisplayFormat,
+    props.options?.chosenLabel,
   ]);
 
   // Effect for showing/hiding calendars
@@ -841,7 +890,9 @@ const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
             <span className={options.labelClassName ?? ''}>
               {options.showFullDateRangeLabel || options.singleDatePicker
                 ? originalSelectedRangeLabel
-                : chosenLabel}
+                : chosenLabel ||
+                  options.locale?.customRangeLabel ||
+                  'Custom Range'}
             </span>
           </div>
         )}
