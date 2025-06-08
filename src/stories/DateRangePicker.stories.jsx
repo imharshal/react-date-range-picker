@@ -313,6 +313,8 @@ export const CustomRanges = (args) => {
           autoUpdateRanges: true,
           alwaysShowCalendars: true,
           showCustomRangeLabel: true,
+          showInputField: false,
+          chosenLabel: dateRange.chosenLabel, // Pass the chosenLabel directly
           icon: <FaCalendarDay />,
         }}
       />
@@ -410,6 +412,8 @@ function CustomRangesExample() {
         autoUpdateRanges: true,
         alwaysShowCalendars: true,
         showCustomRangeLabel: true,
+        showInputField: false,
+        chosenLabel: dateRange.chosenLabel,
         icon: <FaCalendarDay />
       }}
     />
