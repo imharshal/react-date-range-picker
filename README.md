@@ -34,6 +34,7 @@ A flexible, feature-rich date range picker component for React applications with
     - [Programmatic Control with Ref Forwarding](#programmatic-control-with-ref-forwarding)
     - [Available Methods via Ref](#available-methods-via-ref)
   - [Predefined Ranges](#predefined-ranges)
+    - [Using `chosenLabel` with Predefined Ranges](#using-chosenlabel-with-predefined-ranges)
   - [Localization](#localization)
   - [Events](#events)
     - [`onApply`](#onapply)
@@ -47,6 +48,7 @@ A flexible, feature-rich date range picker component for React applications with
     - [Issue: Time picker not working](#issue-time-picker-not-working)
     - [Issue: Predefined ranges not showing](#issue-predefined-ranges-not-showing)
     - [Issue: Dates not updating in parent component](#issue-dates-not-updating-in-parent-component)
+    - [Issue: Range label not showing correctly with `showInputField: false`](#issue-range-label-not-showing-correctly-with-showinputfield-false)
     - [Issue: Calendar doesn't open/close properly](#issue-calendar-doesnt-openclose-properly)
   - [Contributing](#contributing)
   - [Credits](#credits)
@@ -167,6 +169,7 @@ interface DateRangePickerOptions {
   linkedCalendars?: boolean;
   autoUpdateInput?: boolean;
   alwaysShowCalendars?: boolean;
+  chosenLabel?: string; // Label for the selected range (e.g., 'Last 7 Days')
 
   // Display settings
   showInputField?: boolean;
@@ -445,6 +448,41 @@ By default, the following ranges are available:
 
 You can override these ranges using the `ranges` option.
 
+### Using `chosenLabel` with Predefined Ranges
+
+When a user selects a predefined range, the `chosenLabel` property is set to the name of the selected range (e.g., "Last 7 Days"). This label is:
+
+1. Returned in the `onApply` callback: `{ startDate, endDate, chosenLabel }`
+2. Used for display when `showInputField` is set to `false`
+
+For proper display when `showInputField` is set to `false`, you should:
+
+```jsx
+const [dateRange, setDateRange] = useState({
+  startDate: moment().subtract(7, 'days'),
+  endDate: moment(),
+  chosenLabel: 'Last 7 Days', // Initialize with the appropriate label
+});
+
+const handleApply = (range) => {
+  setDateRange({
+    startDate: range.startDate,
+    endDate: range.endDate,
+    chosenLabel: range.chosenLabel, // Store the chosen label
+  });
+};
+
+<DateRangePicker
+  startDate={dateRange.startDate}
+  endDate={dateRange.endDate}
+  onApply={handleApply}
+  options={{
+    showInputField: false,
+    chosenLabel: dateRange.chosenLabel, // Pass chosenLabel to display correctly
+  }}
+/>;
+```
+
 ---
 
 ## Localization
@@ -475,6 +513,13 @@ Called when the user applies the selected date range.
 ```jsx
 const handleApply = ({ startDate, endDate, chosenLabel }) => {
   console.log('Selected Range:', startDate, endDate, chosenLabel);
+
+  // When using with showInputField: false, remember to store chosenLabel
+  setState({
+    startDate,
+    endDate,
+    chosenLabel, // Store this to pass it back to the component
+  });
 };
 ```
 
@@ -549,6 +594,28 @@ This library requires the following dependencies:
 
 - Ensure you're handling the `onApply` callback correctly.
 - Check that you're updating your state with the new values.
+
+### Issue: Range label not showing correctly with `showInputField: false`
+
+- Make sure to store and pass back the `chosenLabel` from the `onApply` callback:
+  ```jsx
+  const handleApply = (range) => {
+    setDateRange({
+      startDate: range.startDate,
+      endDate: range.endDate,
+      chosenLabel: range.chosenLabel, // Store this value
+    });
+  };
+  ```
+- Pass the `chosenLabel` back to the component in the options:
+  ```jsx
+  <DateRangePicker
+    options={{
+      showInputField: false,
+      chosenLabel: dateRange.chosenLabel,
+    }}
+  />
+  ```
 
 ### Issue: Calendar doesn't open/close properly
 
