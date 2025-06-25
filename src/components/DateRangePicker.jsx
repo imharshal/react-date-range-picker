@@ -566,15 +566,22 @@ const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
         setIsSelecting(true);
       } else {
         setIsSelecting(false);
-
+        let newStart = startDate;
+        let newEnd = endDate;
         if (date.isBefore(startDate)) {
-          setEndDate(startDate.clone());
-          handleSetStartDate(date);
+          newEnd = startDate.clone();
+          newStart = date.clone();
+          setEndDate(newEnd);
+          handleSetStartDate(newStart);
         } else {
-          handleSetEndDate(date);
+          newEnd = date.clone();
+          setEndDate(newEnd);
         }
-
         setHoverDate(null);
+        // Use the newStart and newEnd for applyChanges
+        if (options.autoApply) {
+          applyChanges(newStart, newEnd, chosenLabel);
+        }
       }
     },
     [
@@ -586,7 +593,6 @@ const DateRangePicker = forwardRef(({ onApply, onCancel, ...props }, ref) => {
       startDate,
       endDate,
       handleSetStartDate,
-      handleSetEndDate,
       applyChanges,
     ]
   );
