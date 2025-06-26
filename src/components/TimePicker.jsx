@@ -58,21 +58,45 @@ const TimePicker = ({
     const end = timePicker24Hour ? 23 : 12;
 
     for (let i = start; i <= end; i++) {
-      let hour = i;
-
-      // For 12-hour format, map the hours correctly
+      // Always use 24-hour value for comparison
+      let hour24 = i;
       if (!timePicker24Hour) {
-        if (selected.hour() >= 12) {
-          hour = i === 12 ? 12 : i;
-        } else {
-          hour = i === 12 ? 0 : i;
+        const ampm = selected.format('A');
+        if (ampm === 'PM' && i < 12) {
+          hour24 = i + 12;
+        } else if (ampm === 'AM' && i === 12) {
+          hour24 = 0;
         }
       }
 
-      const time = selected.clone().hour(hour);
-      const disabled =
-        (minDate && time.minute(59).isBefore(minDate)) ||
-        (maxDate && time.minute(0).isAfter(maxDate));
+      let disabled = false;
+      if (
+        minDate &&
+        maxDate &&
+        selected.isSame(minDate, 'day') &&
+        selected.isSame(maxDate, 'day')
+      ) {
+        if (hour24 < minDate.hour() || hour24 > maxDate.hour()) {
+          disabled = true;
+        }
+      } else if (minDate && selected.isSame(minDate, 'day')) {
+        if (hour24 < minDate.hour()) {
+          disabled = true;
+        }
+      } else if (maxDate && selected.isSame(maxDate, 'day')) {
+        if (hour24 > maxDate.hour()) {
+          disabled = true;
+        }
+      } else {
+        // Fallback for other days
+        const time = selected.clone().hour(hour24);
+        if (minDate && time.minute(59).second(59).isBefore(minDate)) {
+          disabled = true;
+        }
+        if (maxDate && time.minute(0).second(0).isAfter(maxDate)) {
+          disabled = true;
+        }
+      }
 
       options.push({
         value: i,
