@@ -1,6 +1,6 @@
 {
   "name": "@imharshal/react-date-range-picker",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "type": "module",
   "main": "./dist/date-range-picker.umd.js",
   "module": "./dist/date-range-picker.es.js",
