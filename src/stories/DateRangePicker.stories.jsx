@@ -309,9 +309,9 @@ export const CustomRanges = (args) => {
         options={{
           locale: {
             format: 'MMMM D, YYYY HH:mm:ss',
+            customRangeLabel: 'Custom Range',
           },
           autoUpdateRanges: true,
-          alwaysShowCalendars: true,
           showCustomRangeLabel: true,
           showInputField: false,
           chosenLabel: dateRange.chosenLabel, // Pass the chosenLabel directly
